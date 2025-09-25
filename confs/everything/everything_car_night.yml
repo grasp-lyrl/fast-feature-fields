@@ -1,0 +1,31 @@
+polarity: [False, False]
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 1 # Mini batch size of events
+  datasets:
+  - confs/everything/car_night.yml
+
+min_numevents_ctx: 100000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+time_pred: 20000 # Time to predict in us
+bucket: 1000 # Number of us in each frame
+frame_sizes: [1280, 720] # Size of the frame
+
+eventff:
+  config: confs/ff/modeloptions/1280x720x20_patchff_ds1_small.yml
+  ckpt: outputs/patchff_fullcardaynightm3ed_small_20ms/models/last.pth
+
+segmentation:
+  config: outputs/segmentation/segformer_b3_fullm3ed_800x600x20/models/segmentation_config.yml
+  ckpt: outputs/segmentation/segformer_b3_fullm3ed_800x600x20/models/best.pth
+
+monoculardepth:
+  config: outputs/monoculardepth/dav2b_fullm3ed_pseudo_518x518x20/models/depth_config.yml
+  ckpt: outputs/monoculardepth/dav2b_fullm3ed_pseudo_518x518x20/models/best.pth
+
+optical_flow:
+  config: outputs/optical_flow/optflow_trainm3ed_20msff_pyr5_28k/models/flow_config.yaml
+  ckpt: outputs/optical_flow/optflow_trainm3ed_20msff_pyr5_28k/models/last.pth

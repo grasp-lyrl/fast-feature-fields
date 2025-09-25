@@ -1,0 +1,36 @@
+datasets:
+- dataset_path: data/falcon_outdoor_day_fast_flight_3/falcon_outdoor_day_fast_flight_3_data.h5
+  timestamps_path: data/falcon_outdoor_day_fast_flight_3/50khz_falcon_outdoor_day_fast_flight_3_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/falcon_outdoor_day_penno_parking_3/falcon_outdoor_day_penno_parking_3_data.h5
+  timestamps_path: data/falcon_outdoor_day_penno_parking_3/50khz_falcon_outdoor_day_penno_parking_3_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/falcon_outdoor_night_penno_parking_2/falcon_outdoor_night_penno_parking_2_data.h5
+  timestamps_path: data/falcon_outdoor_night_penno_parking_2/50khz_falcon_outdoor_night_penno_parking_2_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0.75, 2, 1]
+
+- dataset_path: data/falcon_outdoor_day_fast_flight_3/falcon_outdoor_day_fast_flight_3_data.h5
+  timestamps_path: data/falcon_outdoor_day_fast_flight_3/50khz_falcon_outdoor_day_fast_flight_3_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/falcon_outdoor_day_penno_parking_3/falcon_outdoor_day_penno_parking_3_data.h5
+  timestamps_path: data/falcon_outdoor_day_penno_parking_3/50khz_falcon_outdoor_day_penno_parking_3_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/falcon_outdoor_night_penno_parking_2/falcon_outdoor_night_penno_parking_2_data.h5
+  timestamps_path: data/falcon_outdoor_night_penno_parking_2/50khz_falcon_outdoor_night_penno_parking_2_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0.75, 2, 1]

@@ -1,0 +1,56 @@
+datasets:
+- dataset_path: data/zurich_city_00_a/events/left/events.h5
+  timestamps_path: data/zurich_city_00_a/50khz_zurich_city_00_a.npy
+  semantics_path: data/zurich_city_00_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_01_a/events/left/events.h5
+  timestamps_path: data/zurich_city_01_a/50khz_zurich_city_01_a.npy
+  semantics_path: data/zurich_city_01_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_a/events/left/events.h5
+  timestamps_path: data/zurich_city_02_a/50khz_zurich_city_02_a.npy
+  semantics_path: data/zurich_city_02_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_04_a/events/left/events.h5
+  timestamps_path: data/zurich_city_04_a/50khz_zurich_city_04_a.npy
+  semantics_path: data/zurich_city_04_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]  
+
+- dataset_path: data/zurich_city_05_a/events/left/events.h5
+  timestamps_path: data/zurich_city_05_a/50khz_zurich_city_05_a.npy
+  semantics_path: data/zurich_city_05_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_06_a/events/left/events.h5
+  timestamps_path: data/zurich_city_06_a/50khz_zurich_city_06_a.npy
+  semantics_path: data/zurich_city_06_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_07_a/events/left/events.h5
+  timestamps_path: data/zurich_city_07_a/50khz_zurich_city_07_a.npy
+  semantics_path: data/zurich_city_07_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_08_a/events/left/events.h5
+  timestamps_path: data/zurich_city_08_a/50khz_zurich_city_08_a.npy
+  semantics_path: data/zurich_city_08_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]

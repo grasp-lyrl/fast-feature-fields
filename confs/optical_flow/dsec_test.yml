@@ -1,0 +1,42 @@
+datasets:
+- dataset_path: data/interlaken_00_b/events/left/events.h5
+  timestamps_path: data/interlaken_00_b/50khz_interlaken_00_b.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/interlaken_01_a/events/left/events.h5
+  timestamps_path: data/interlaken_01_a/50khz_interlaken_01_a.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/thun_01_a/events/left/events.h5
+  timestamps_path: data/thun_01_a/50khz_thun_01_a.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/thun_01_b/events/left/events.h5
+  timestamps_path: data/thun_01_b/50khz_thun_01_b.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_12_a/events/left/events.h5
+  timestamps_path: data/zurich_city_12_a/50khz_zurich_city_12_a.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_14_c/events/left/events.h5
+  timestamps_path: data/zurich_city_14_c/50khz_zurich_city_14_c.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_15_a/events/left/events.h5
+  timestamps_path: data/zurich_city_15_a/50khz_zurich_city_15_a.npy
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]

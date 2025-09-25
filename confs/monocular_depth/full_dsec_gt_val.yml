@@ -1,0 +1,28 @@
+datasets:
+- dataset_path: data/interlaken_00_g/events/left/events.h5
+  timestamps_path: data/interlaken_00_g/50khz_interlaken_00_g.npy
+  depth_path: data/interlaken_00_g/
+  camera: left
+  dtype: dsec_gt
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_e/events/left/events.h5
+  timestamps_path: data/zurich_city_02_e/50khz_zurich_city_02_e.npy
+  depth_path: data/zurich_city_02_e/
+  camera: left
+  dtype: dsec_gt
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_09_e/events/left/events.h5
+  timestamps_path: data/zurich_city_09_e/50khz_zurich_city_09_e.npy
+  depth_path: data/zurich_city_09_e/
+  camera: left
+  dtype: dsec_gt
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_11_c/events/left/events.h5
+  timestamps_path: data/zurich_city_11_c/50khz_zurich_city_11_c.npy
+  depth_path: data/zurich_city_11_c/
+  camera: left
+  dtype: dsec_gt
+  range: [0, 1, 1]

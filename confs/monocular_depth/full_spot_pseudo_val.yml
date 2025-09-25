@@ -1,0 +1,14 @@
+datasets:
+- dataset_path: data/spot_indoor_building_loop/spot_indoor_building_loop_data.h5
+  timestamps_path: data/spot_indoor_building_loop/50khz_spot_indoor_building_loop_data.npy
+  depth_path: data/spot_indoor_building_loop/spot_indoor_building_loop_dav2_disp_depth_left.h5
+  camera: left
+  dtype: m3ed_pseudo
+  range: [0.75, 1, 1]
+
+- dataset_path: data/spot_outdoor_day_art_plaza_loop/spot_outdoor_day_art_plaza_loop_data.h5
+  timestamps_path: data/spot_outdoor_day_art_plaza_loop/50khz_spot_outdoor_day_art_plaza_loop_data.npy
+  depth_path: data/spot_outdoor_day_art_plaza_loop/spot_outdoor_day_art_plaza_loop_dav2_disp_depth_left.h5
+  camera: left
+  dtype: m3ed_pseudo
+  range: [0.75, 1, 1]

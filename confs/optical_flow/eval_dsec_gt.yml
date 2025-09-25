@@ -1,0 +1,25 @@
+data: dsec
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/optical_flow/dsec_train_gt.yml
+
+randomize_ctx: True
+min_numevents_ctx: 50000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+bucket: 1000 # Number of us in each frame
+frame_sizes: [640, 480] # Size of the frame
+
+# FlowHead options
+flowhead:
+  kernels: [9, 9, 9, 9]
+  btlncks: [2, 2, 2, 2]
+  dilations: [2, 2, 2, 1]
+
+# which event ff model and weights to load as the backbone
+eventff:
+  config: outputs/patchff_fulldsec_small_20ms_masked40/models/config.yml # Inherits the model and event data vars from here

@@ -1,0 +1,34 @@
+# Training options
+lr: 5.0e-5 # Learning rate
+lr_end_factor: 0.1 # Linear Scheduler learning rate end factor
+epochs: 200 # Number of epochs
+log_interval: 20 # Log interval in epochs
+val_interval: 5 # Validation interval in epochs
+loss_fn: VoxelFocalLoss # Loss function
+polarity: [False, False] # Use polarity for the training
+
+train:
+  num_workers: 8 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 8 # Mini batch size of events
+  datasets:
+  - confs/ff/dataoptions/full_dsec_train_20ms.yml
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks
+  mini_batch: 2 # Mini batch size of events
+  datasets:
+  - confs/ff/dataoptions/full_dsec_val_20ms.yml
+
+randomize_ctx: True
+min_numevents_ctx: 50000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+time_pred: 20000 # Time to predict in us
+bucket: 1000 # Number of us in each frame
+frame_sizes: [640, 480] # Size of the frame
+
+# Feature Field
+eventff:
+  config: confs/ff/modeloptions/640x480x20_patchff_ds1_small.yml

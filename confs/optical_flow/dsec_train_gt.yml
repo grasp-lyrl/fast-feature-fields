@@ -1,0 +1,127 @@
+#! We don't use this GT to train our models, but we do evaluate on this as a sanity check.
+datasets:
+- dataset_path: data/thun_00_a/events/left/events.h5
+  timestamps_path: data/thun_00_a/50khz_thun_00_a.npy
+  flow_path: data/thun_00_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_01_a/events/left/events.h5
+  timestamps_path: data/zurich_city_01_a/50khz_zurich_city_01_a.npy
+  flow_path: data/zurich_city_01_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_a/events/left/events.h5
+  timestamps_path: data/zurich_city_02_a/50khz_zurich_city_02_a.npy
+  flow_path: data/zurich_city_02_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_c/events/left/events.h5
+  timestamps_path: data/zurich_city_02_c/50khz_zurich_city_02_c.npy
+  flow_path: data/zurich_city_02_c/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_d/events/left/events.h5
+  timestamps_path: data/zurich_city_02_d/50khz_zurich_city_02_d.npy
+  flow_path: data/zurich_city_02_d/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_02_e/events/left/events.h5
+  timestamps_path: data/zurich_city_02_e/50khz_zurich_city_02_e.npy
+  flow_path: data/zurich_city_02_e/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_03_a/events/left/events.h5
+  timestamps_path: data/zurich_city_03_a/50khz_zurich_city_03_a.npy
+  flow_path: data/zurich_city_03_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_05_a/events/left/events.h5
+  timestamps_path: data/zurich_city_05_a/50khz_zurich_city_05_a.npy
+  flow_path: data/zurich_city_05_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_05_b/events/left/events.h5
+  timestamps_path: data/zurich_city_05_b/50khz_zurich_city_05_b.npy
+  flow_path: data/zurich_city_05_b/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_06_a/events/left/events.h5
+  timestamps_path: data/zurich_city_06_a/50khz_zurich_city_06_a.npy
+  flow_path: data/zurich_city_06_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_07_a/events/left/events.h5
+  timestamps_path: data/zurich_city_07_a/50khz_zurich_city_07_a.npy
+  flow_path: data/zurich_city_07_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_08_a/events/left/events.h5
+  timestamps_path: data/zurich_city_08_a/50khz_zurich_city_08_a.npy
+  flow_path: data/zurich_city_08_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_09_a/events/left/events.h5
+  timestamps_path: data/zurich_city_09_a/50khz_zurich_city_09_a.npy
+  flow_path: data/zurich_city_09_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_10_a/events/left/events.h5
+  timestamps_path: data/zurich_city_10_a/50khz_zurich_city_10_a.npy
+  flow_path: data/zurich_city_10_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_10_b/events/left/events.h5
+  timestamps_path: data/zurich_city_10_b/50khz_zurich_city_10_b.npy
+  flow_path: data/zurich_city_10_b/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_11_a/events/left/events.h5
+  timestamps_path: data/zurich_city_11_a/50khz_zurich_city_11_a.npy
+  flow_path: data/zurich_city_11_a/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_11_b/events/left/events.h5
+  timestamps_path: data/zurich_city_11_b/50khz_zurich_city_11_b.npy
+  flow_path: data/zurich_city_11_b/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_11_c/events/left/events.h5
+  timestamps_path: data/zurich_city_11_c/50khz_zurich_city_11_c.npy
+  flow_path: data/zurich_city_11_c/flow
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]

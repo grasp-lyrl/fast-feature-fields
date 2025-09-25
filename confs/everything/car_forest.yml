@@ -1,0 +1,31 @@
+
+datasets:
+# - dataset_path: data/car_forest_into_ponds_long/car_forest_into_ponds_long_data.h5
+#   timestamps_path: data/car_forest_into_ponds_long/50khz_car_forest_into_ponds_long_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/car_forest_into_ponds_short/car_forest_into_ponds_short_data.h5
+#   timestamps_path: data/car_forest_into_ponds_short/50khz_car_forest_into_ponds_short_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/car_forest_sand_1/car_forest_sand_1_data.h5
+#   timestamps_path: data/car_forest_sand_1/50khz_car_forest_sand_1_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/car_forest_sand_2/car_forest_sand_2_data.h5
+#   timestamps_path: data/car_forest_sand_2/50khz_car_forest_sand_2_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+- dataset_path: data/car_forest_tree_tunnel/car_forest_tree_tunnel_data.h5
+  timestamps_path: data/car_forest_tree_tunnel/50khz_car_forest_tree_tunnel_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]

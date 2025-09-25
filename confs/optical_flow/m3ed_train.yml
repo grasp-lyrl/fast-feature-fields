@@ -1,0 +1,48 @@
+datasets:
+- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+  camera: right
+  dtype: m3ed
+  range: [0, 1, 1]

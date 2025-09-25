@@ -1,0 +1,41 @@
+# Training options
+lr: 6.0e-5 # Learning rate
+lr_end_factor: 0.05 # Learning rate decay
+epochs: 200 # Number of epochs
+log_interval: 20 # Log interval in epochs
+val_interval: 10 # Validation interval in epochs
+polarity: [False, False] # Use polarity for the training
+
+train:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 2 # Mini batch size of events
+  datasets:
+  - confs/segmentation/m3ed_train.yml
+
+val: #! Not that we don't use this for cross validation
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/segmentation/m3ed_test.yml
+
+randomize_ctx: True
+random_crop:
+  enable: True
+  size: [720, 1280]
+min_numevents_ctx: 200000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+time_pred: 20000 # Time to predict in us
+bucket: 1000 # Number of us in each frame
+frame_sizes: [1280, 720] # Size of the frame
+num_labels: 11 # Number of labels
+
+# segformer config to load (not the weights)
+segformer_config: nvidia/segformer-b3-finetuned-cityscapes-1024-1024
+
+# which event ff model and weights to load as the backbone
+eventff:
+  config: outputs/patchff_fullcardaym3ed_small_20ms/models/config.yml
+  ckpt: outputs/patchff_fullcardaym3ed_small_20ms/models/last.pth

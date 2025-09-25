@@ -1,0 +1,22 @@
+model: EventPatchFF
+T: 20
+convbtlncks: [4, 4, 4]
+convdepths: [2, 2, 3]
+convdilations: [1, 1, 1]
+convkernels: [7, 7, 1]
+dims: [96, 128, 256]
+dskernels: [5, 5, 5]
+dsstrides: [2, 2, 4]
+frame_sizes: [1280, 720, 20]
+multi_hash_encoder:
+  coarsest_resolution: [8, 8, 1]
+  feature_size: 2
+  finest_resolution: [320, 180, 8]
+  levels: 4
+  log2_entries_per_level: 19
+patch_size: 16
+use_decoder_block: true
+variable_mode: true
+
+# Receptive field: 96x96
+# Feature downsample: 16x16

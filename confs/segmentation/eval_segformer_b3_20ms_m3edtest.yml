@@ -1,0 +1,29 @@
+# Training options
+polarity: [False, False] # Use polarity for the training
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/segmentation/m3ed_test.yml
+
+randomize_ctx: True
+min_numevents_ctx: 200000 # Number of events to use for the context in 1280x720
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+time_pred: 20000 # Time to predict in us
+bucket: 1000 # Number of us in each frame
+frame_sizes: [1280, 720] # Size of the frame
+num_labels: 11 # Number of labels
+
+# segformer config to load (not the weights)
+segformer_config: nvidia/segformer-b3-finetuned-cityscapes-1024-1024
+
+# which event ff model and weights to load as the backbone
+# eventff:
+#   config: outputs/patchff_fullcardaym3ed_small_20ms/models/config.yml
+
+eventmodel: "frames"
+
+# eventmodel: "voxelgrid"

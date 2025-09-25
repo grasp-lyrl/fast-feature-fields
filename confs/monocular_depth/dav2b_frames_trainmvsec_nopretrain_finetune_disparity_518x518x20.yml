@@ -1,0 +1,43 @@
+# Training options
+lr: 6.0e-6 # Learning rate
+lr_end_factor: 1.0 # Learning rate decay
+clip_grad: 0 # Gradient clipping
+epochs: 100 # Number of epochs
+log_interval: 10 # Log interval in epochs
+val_interval: 5 # Validation interval in epochs
+polarity: [False, False] # Use polarity for the training
+
+train:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 4 # Mini batch size of events
+  datasets:
+  - confs/monocular_depth/full_mvsec_gt_train.yml
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/monocular_depth/full_mvsec_gt_val.yml
+
+randomize_ctx: True
+min_numevents_ctx: 1000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 50000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+bucket: 1000 # Number of us in each frame
+frame_sizes: [346, 260] # Size of the frame
+
+# Loss stuff
+loss: silog # Loss function to use
+lambd: 0.5 # Lambda for the SiLog Loss
+min_disparity: 0 # Minimum disparity for the depth map
+max_disparity: 384 # Maximum disparity for the depth map lowest depth~0.12m
+
+# dav2 config to load
+dav2_config:
+  size: 518
+  encoder: vitb
+  ckpt: src/prolev/tasks/depth/checkpoints/depth_anything_v2_vitb.pth
+
+eventmodel: "frames"

@@ -1,0 +1,66 @@
+datasets:
+- dataset_path: data/spot_indoor_building_loop/spot_indoor_building_loop_data.h5
+  timestamps_path: data/spot_indoor_building_loop/50khz_spot_indoor_building_loop_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]
+
+# - dataset_path: data/spot_indoor_obstacles/spot_indoor_obstacles_data.h5
+#   timestamps_path: data/spot_indoor_obstacles/50khz_spot_indoor_obstacles_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 0.5]
+
+# - dataset_path: data/spot_indoor_stairs/spot_indoor_stairs_data.h5
+#   timestamps_path: data/spot_indoor_stairs/50khz_spot_indoor_stairs_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_indoor_stairwell/spot_indoor_stairwell_data.h5
+#   timestamps_path: data/spot_indoor_stairwell/50khz_spot_indoor_stairwell_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_art_plaza_loop/spot_outdoor_day_art_plaza_loop_data.h5
+#   timestamps_path: data/spot_outdoor_day_art_plaza_loop/50khz_spot_outdoor_day_art_plaza_loop_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_penno_short_loop/spot_outdoor_day_penno_short_loop_data.h5
+#   timestamps_path: data/spot_outdoor_day_penno_short_loop/50khz_spot_outdoor_day_penno_short_loop_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 0.5]
+
+# - dataset_path: data/spot_outdoor_day_rocky_steps/spot_outdoor_day_rocky_steps_data.h5
+#   timestamps_path: data/spot_outdoor_day_rocky_steps/50khz_spot_outdoor_day_rocky_steps_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_skatepark_1/spot_outdoor_day_skatepark_1_data.h5
+#   timestamps_path: data/spot_outdoor_day_skatepark_1/50khz_spot_outdoor_day_skatepark_1_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_skatepark_3/spot_outdoor_day_skatepark_3_data.h5
+#   timestamps_path: data/spot_outdoor_day_skatepark_3/50khz_spot_outdoor_day_skatepark_3_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_srt_green_loop/spot_outdoor_day_srt_green_loop_data.h5
+#   timestamps_path: data/spot_outdoor_day_srt_green_loop/50khz_spot_outdoor_day_srt_green_loop_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]
+
+# - dataset_path: data/spot_outdoor_day_srt_under_bridge_1/spot_outdoor_day_srt_under_bridge_1_data.h5
+#   timestamps_path: data/spot_outdoor_day_srt_under_bridge_1/50khz_spot_outdoor_day_srt_under_bridge_1_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]

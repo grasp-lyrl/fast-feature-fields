@@ -1,0 +1,7 @@
+model: EventUNetFF
+T: 20
+frame_sizes: [1280, 720, 20]
+dims: [32, 32]
+
+# Receptive field:
+# Feature downsample: 4x4

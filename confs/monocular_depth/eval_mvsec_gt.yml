@@ -1,0 +1,39 @@
+# Training options
+polarity: [False, False] # Use polarity for the training
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/monocular_depth/full_mvsec_gt_val.yml
+
+randomize_ctx: True
+min_numevents_ctx: 1000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 50000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+bucket: 1000 # Number of us in each frame
+frame_sizes: [346, 260] # Size of the frame
+
+# Evaluation options if depth
+eval: depth
+fb: 103.15 # Focal length * Baseline in pixels * meters
+min_depth: 0.1 # Minimum depth in meters
+max_depth: 80 # Maximum depth in meters
+
+# Evaluation options if disparity
+# eval: disparity
+# max_disparity: 1000 # Maximum disparity in pixels
+
+# dav2 config to load
+dav2_config:
+  size: 518
+  encoder: vitb
+
+# which event ff model and weights to load as the backbone
+eventff:
+  config: outputs/patchff_fulloutdoormvsec_small_50ms_withnight/models/config.yml
+
+# eventmodel: frames
+
+# eventmodel: voxelgrid

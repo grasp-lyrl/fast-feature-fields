@@ -1,0 +1,7 @@
+datasets:
+- dataset_path: data/outdoor_day2_data/outdoor_day2_data.hdf5
+  timestamps_path: data/outdoor_day2_data/50khz_outdoor_day2_data.npy
+  depth_path: data/outdoor_day2_data/outdoor_day2_gt.hdf5
+  camera: left
+  dtype: mvsec_gt
+  range: [0, 1, 1]

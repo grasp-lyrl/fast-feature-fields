@@ -1,0 +1,84 @@
+datasets:
+- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+  semantics_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+  semantics_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 0.5]
+
+- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+  semantics_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop_data/50khz_car_urban_day_ucity_small_loop_data.npy
+  semantics_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 0.5]
+
+- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+  semantics_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_data.h5
+  timestamps_path: data/car_urban_day_rittenhouse_data/50khz_car_urban_day_rittenhouse_data.npy
+  semantics_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_semantics.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+  semantics_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+  semantics_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+  semantics_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop_data/50khz_car_urban_day_ucity_small_loop_data.npy
+  semantics_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0.5, 2, 1]
+
+- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+  semantics_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0, 2, 1]
+
+- dataset_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_data.h5
+  timestamps_path: data/car_urban_day_rittenhouse_data/50khz_car_urban_day_rittenhouse_data.npy
+  semantics_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_semantics_right.h5
+  camera: right
+  dtype: m3ed
+  range: [0, 2, 1]

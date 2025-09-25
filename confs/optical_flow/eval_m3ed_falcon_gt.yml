@@ -1,0 +1,33 @@
+data: m3ed
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/optical_flow/m3ed_falcon_test_gt.yml
+
+randomize_ctx: True
+min_numevents_ctx: 100000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+bucket: 1000 # Number of us in each frame
+frame_sizes: [1280, 720] # Size of the frame
+
+# FlowHead options
+flowhead:
+  kernels: [9, 9, 9, 9]
+  btlncks: [2, 2, 2, 2]
+  dilations: [1, 2, 2, 1]
+
+# which event ff model and weights to load as the backbone
+eventff:
+  config: confs/ff/modeloptions/1280x720x20_patchff_ds1_small.yml # Inherits the model and event data vars from here
+
+# UNetFF
+# eventff:
+#   config: confs/ff/modeloptions/1280x720x20_unetff_ds4_small.yml
+
+# eventmodel: "frames"
+
+# eventmodel: "voxelgrid"

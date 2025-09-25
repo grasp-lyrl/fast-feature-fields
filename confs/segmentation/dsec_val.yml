@@ -1,0 +1,21 @@
+datasets:
+- dataset_path: data/zurich_city_13_a/events/left/events.h5
+  timestamps_path: data/zurich_city_13_a/50khz_zurich_city_13_a.npy
+  semantics_path: data/zurich_city_13_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_14_c/events/left/events.h5
+  timestamps_path: data/zurich_city_14_c/50khz_zurich_city_14_c.npy
+  semantics_path: data/zurich_city_14_c
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]
+
+- dataset_path: data/zurich_city_15_a/events/left/events.h5
+  timestamps_path: data/zurich_city_15_a/50khz_zurich_city_15_a.npy
+  semantics_path: data/zurich_city_15_a
+  camera: left
+  dtype: dsec
+  range: [0, 1, 1]

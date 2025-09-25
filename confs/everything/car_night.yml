@@ -1,0 +1,24 @@
+datasets:
+- dataset_path: data/car_urban_night_city_hall_data/car_urban_night_city_hall_data.h5
+  timestamps_path: data/car_urban_night_city_hall_data/50khz_car_urban_night_city_hall_data.npy
+  camera: left
+  dtype: m3ed
+  range: [0, 5, 1]
+
+# - dataset_path: data/car_urban_night_ucity_small_loop_data/car_urban_night_ucity_small_loop_data.h5
+#   timestamps_path: data/car_urban_night_ucity_small_loop_data/50khz_car_urban_night_ucity_small_loop_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 5, 1]
+
+# - dataset_path: data/car_urban_night_rittenhouse_data/car_urban_night_rittenhouse_data.h5
+#   timestamps_path: data/car_urban_night_rittenhouse_data/50khz_car_urban_night_rittenhouse_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 5, 1]
+
+# - dataset_path: data/car_urban_night_penno_small_loop_darker_data/car_urban_night_penno_small_loop_darker_data.h5
+#   timestamps_path: data/car_urban_night_penno_small_loop_darker_data/50khz_car_urban_night_penno_small_loop_darker_data.npy
+#   camera: left
+#   dtype: m3ed
+#   range: [0, 2, 1]

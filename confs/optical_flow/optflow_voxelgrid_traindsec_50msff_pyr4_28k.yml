@@ -1,0 +1,42 @@
+# Training options
+lr: 1.0e-3 # Learning rate
+lr_end_factor: 1.0 # Learning rate decay
+epochs: 100 # Number of epochs
+log_interval: 10 # Log interval in epochs
+val_interval: 10 # Validation interval in epochs
+
+train:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 4 # Mini batch size of events
+  datasets:
+  - confs/optical_flow/dsec_train.yml
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/optical_flow/dsec_test.yml
+
+randomize_ctx: True
+min_numevents_ctx: 100000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 50000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+time_pred: -50000 # Time to use for the prediction in us
+time_flow: 100000 # Time to use for the flow in us
+bucket: 1000 # Number of us in each frame
+frame_sizes: [640, 480] # Size of the frame
+
+# Self supervision options
+pyramids: 4 # Number of pyramidal levels to use ~40pixels
+alpha: 1.0e-3 # Weight of the smoothness loss
+
+# FlowHead options
+flowhead:
+  kernels: [9, 9, 9, 9]
+  btlncks: [2, 2, 2, 2]
+  dilations: [2, 2, 2, 1]
+
+# which event ff model and weights to load as the backbone
+eventmodel: "voxelgrid"

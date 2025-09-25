@@ -1,0 +1,14 @@
+datasets:
+- dataset_path: data/car_urban_day_ucity_small_loop/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop/50khz_car_urban_day_ucity_small_loop_data.npy
+  flow_path: data/car_urban_day_ucity_small_loop/car_urban_day_ucity_small_loop_gt_flow.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
+
+- dataset_path: data/car_urban_day_rittenhouse/car_urban_day_rittenhouse_data.h5
+  timestamps_path: data/car_urban_day_rittenhouse/50khz_car_urban_day_rittenhouse_data.npy
+  flow_path: data/car_urban_day_rittenhouse/car_urban_day_rittenhouse_gt_flow.h5
+  camera: left
+  dtype: m3ed
+  range: [0, 1, 1]
