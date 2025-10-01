@@ -25,15 +25,27 @@ if [ "$TYPE" == "f3" ]; then
 fi
 
 if [ "$TYPE" == "seg" ]; then
-  echo "Coming soon!"
+  echo "Downloading semantic segmentation models to $DEST"
+  MODEL="segformer_b3_fullm3ed_800x600x20"
+  mkdir -p "$DEST"/"$MODEL"
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/segmentation/"$MODEL"/models/best_miou.pth
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/segmentation/"$MODEL"/models/segmentation_config.yml
 fi
 
 if [ "$TYPE" == "depth" ]; then
-  echo "Coming soon!"
+  echo "Downloading pseudo monocular depth models to $DEST"
+  MODEL="dav2b_fullm3ed_pseudo_518x518x20"
+  mkdir -p "$DEST"/"$MODEL"
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/monoculardepth/"$MODEL"/best.pth
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/monoculardepth/"$MODEL"/depth_config.yml
 fi
 
 if [ "$TYPE" == "flow" ]; then
-  echo "Coming soon!"
+  echo "Downloading optical flow models to $DEST"
+  MODEL="optflow_trainm3ed_20msff_pyr5_28k"
+  mkdir -p "$DEST"/"$MODEL"
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/flow/"$MODEL"/last.pth
+  wget -P "$DEST"/"$MODEL" "$BASE_URL"/flow/"$MODEL"/flow_config.yaml
 fi
 
 echo "Download completed."

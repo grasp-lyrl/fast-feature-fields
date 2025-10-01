@@ -1,5 +1,7 @@
 # Fast Feature Field (F<sup>3</sup>): A Predictive Representation of Events
 
+*Official repository for the paper [Fast Feature Field (F<sup>3</sup>): A Predictive Representation of Events](https://arxiv.org/abs/2509.25146).*
+
 <div align="center">
 
 ![F<sup>3</sup> Logo](assets/figure1.webp)
@@ -14,13 +16,14 @@
 
 ## Overview
 
-F<sup>3</sup> architecture is designed specifically for events. F<sup>3</sup> is a predictive representation of events. It is a statistic of past events sufficient to predict future events. We prove that such a representation retains information about the structure and motion in the scene. F<sup>3</sup> achieves low-latency computation by exploiting the sparsity of event data using a multi-resolution hash encoder and permutation-invariant architecture. Our implementation can compute F<sup>3</sup> at 120 Hz and 440 Hz at HD and VGA resolutions, respectively, and can predict different downstream tasks at 25-75 Hz at HD resolution. These HD inference rates are roughly 2-5 times faster than the current state-of-the-art event-based methods. Please refer to the [paper](https://arxiv.org/abs/2509.25146) for more details.
+F<sup>3</sup> architecture is designed specifically for high-performance processing of events. F<sup>3</sup> is a predictive representation of events. It is a statistic of past events, sufficient to predict future events. We prove that such a representation retains information about the structure and motion in the scene. F<sup>3</sup> achieves low-latency computation by exploiting the sparsity of event data using a multi-resolution hash encoder and permutation-invariant architecture. Our implementation can compute F<sup>3</sup> at 120 Hz and 440 Hz at HD and VGA resolutions, respectively, and can predict different downstream tasks at 25-75 Hz at HD resolution. These HD inference rates are roughly 2-5 times faster than the current state-of-the-art event-based methods. Please refer to the [paper](https://arxiv.org/abs/2509.25146) for more details.
+
 
 <div align="center">
 
-![F3 Architecture](assets/arch.webp)
+<img src="assets/arch.webp" alt="F3 Architecture" width="70%">
 
-*An overview of the neural architecture for Fast Feature Field (F<sup>3</sup>) its downstream variants.*
+*An overview of the neural architecture for Fast Feature Field (F<sup>3</sup>) and its downstream variants.*
 
 </div>
 
@@ -42,19 +45,32 @@ cd fast-feature-fields
 pip install -e .
 ```
 
-### Inference using pretrained F<sup>3</sup>
+### Inference using pretrained F<sup>3</sup> and its downstream variants [`[minimal.ipynb]`](minimal.ipynb)
 
-To get you up and running quickly, we can download a small sequence from M3ED and run some inference tasks on it.
+To get you up and running quickly, we can download a small sequence from M3ED and run some inference tasks on it with pretrained weights. Head over to [`[minimal.ipynb]`](minimal.ipynb) to explore the inference pipeline for F<sup>3</sup> and its downstream variants. This is the **recommended** way to get started.
+
 
 ### Training an F<sup>3</sup>
 
-Please refer to `data/README.md` for detailed instructions on setting up the datasets. This is only important if you want to train F<sup>3</sup> models on the M3ED, DSEC or MVSEC datasets.
+
+Please refer to [`data/README.md`](data/README.md) for detailed instructions on setting up the datasets. This is important if you want to train F<sup>3</sup> models on the M3ED, DSEC or MVSEC datasets. As an example, we show how to train an F<sup>3</sup> model on the car urban daytime driving sequences of M3ED below. You can run the following command after setting up the `car urban` sequences of M3ED as per the instructions in [`data/README.md`](data/README.md):
 
 ```bash
 accelerate launch --config_file confs/accelerate_confs/2GPU.yml main.py\
                   --conf confs/ff/trainoptions/patchff_fullcardaym3ed_small_20ms.yml\
                   --compile
 ```
+
+### Training downstream tasks using F<sup>3</sup>
+
+- Coming soon!
+
+
+### Using F<sup>3</sup> as a pretrained backbone for your task
+
+- Coming soon!
+
+---
 
 ### Citation
 
@@ -70,3 +86,9 @@ If you find this code useful in your research, please consider citing:
   primaryClass={cs.CV},
   url={https://arxiv.org/abs/2509.25146},
 }
+```
+
+### Issues
+
+If you encounter any issues, please open an issue on the [GitHub Issues page](https://github.com/grasp-lyrl/fast-feature-fields/issues) or contact [`sudoRicheek`](https://www.github.com/sudoRicheek)
+

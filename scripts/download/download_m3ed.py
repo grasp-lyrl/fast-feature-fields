@@ -176,16 +176,15 @@ if __name__ == "__main__":
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # if yaml file is not provided or it does not exist, download it
+    # if yaml file is not provided, load it directly from URL into memory
     if args.yaml is None:
-        print("Downloading dataset_lists.yaml from the repository")
-        with open("dataset_lists.yaml", "wb") as f:
-            f.write(requests.get(DATASETS_LIST_URL).content)
-        args.yaml = "dataset_lists.yaml"
-
-    # load yaml file
-    with open(args.yaml, "r") as f:
-        dataset_list = yaml.safe_load(f)
+        print("Loading dataset_lists.yaml from the repository")
+        response = requests.get(DATASETS_LIST_URL)
+        dataset_list = yaml.safe_load(response.text)
+    else:
+        # load yaml file from local path
+        with open(args.yaml, "r") as f:
+            dataset_list = yaml.safe_load(f)
 
     # Parse yaml file and instantiate all files
     download_files = {}
