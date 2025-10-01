@@ -6,7 +6,7 @@ __pycache__/
 .venv/
 
 data/*
-!data/DATASET.md
+!data/README.md
 
 wandb/
 build/
