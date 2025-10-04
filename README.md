@@ -10,7 +10,7 @@
 
 *GRASP Laboratory, University of Pennsylvania*
 
-[[📜 Paper](https://arxiv.org/abs/2509.25146)] • [[🎬 Video](#)] • [[🌐 Website](https://www.seas.upenn.edu/~richeek/f3/)] • [[📖 BibTeX](#citation)]
+[[📜 Paper](https://arxiv.org/abs/2509.25146)] • [[🎬 Video](https://youtu.be/DFwz8JeqDk0)] • [[🌐 Website](https://www.seas.upenn.edu/~richeek/f3/)] • [[📖 BibTeX](#citation)]
 
 </div>
 
