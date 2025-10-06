@@ -16,7 +16,7 @@
 
 ## Overview
 
-F<sup>3</sup> architecture is designed specifically for high-performance processing of events. F<sup>3</sup> is a predictive representation of events. It is a statistic of past events, sufficient to predict future events. We prove that such a representation retains information about the structure and motion in the scene. F<sup>3</sup> achieves low-latency computation by exploiting the sparsity of event data using a multi-resolution hash encoder and permutation-invariant architecture. Our implementation can compute F<sup>3</sup> at 120 Hz and 440 Hz at HD and VGA resolutions, respectively, and can predict different downstream tasks at 25-75 Hz at HD resolution. These HD inference rates are roughly 2-5 times faster than the current state-of-the-art event-based methods. Please refer to the [paper](https://arxiv.org/abs/2509.25146) for more details.
+F<sup>3</sup> is a predictive representation of events. It is a statistic of past events, sufficient to predict future events. We prove that such a representation retains information about the structure and motion in the scene. F<sup>3</sup> architecture is designed specifically for high-performance processing of events. F<sup>3</sup> achieves low-latency computation by exploiting the sparsity of event data using a multi-resolution hash encoder and permutation-invariant architecture. Our implementation can compute F<sup>3</sup> at 120 Hz and 440 Hz at HD and VGA resolutions, respectively, and can predict different downstream tasks at 25-75 Hz at HD resolution. These HD inference rates are roughly 2-5 times faster than the current state-of-the-art event-based methods. Please refer to the [paper](https://arxiv.org/abs/2509.25146) for more details.
 
 
 <div align="center">
@@ -31,6 +31,8 @@ F<sup>3</sup> architecture is designed specifically for high-performance process
 ## Quickstart
 
 ### Installation
+
+See "Using F<sup>3</sup> with `torch.hub`" below for a quick way to load F<sup>3</sup> models for inference without cloning the repository. If you want to train F<sup>3</sup> models or use the codebase for your own tasks, please install F<sup>3</sup> locally by following the instructions below.
 
 ```bash
 conda create -n f3 python=3.11
@@ -47,7 +49,20 @@ pip install -e .
 
 ### Inference using pretrained F<sup>3</sup> and its downstream variants [`[minimal.ipynb]`](minimal.ipynb)
 
-To get you up and running quickly, we can download a small sequence from M3ED and run some inference tasks on it with pretrained weights. Head over to [`[minimal.ipynb]`](minimal.ipynb) to explore the inference pipeline for F<sup>3</sup> and its downstream variants. This is the **recommended** way to get started.
+To get you up and running quickly, we can download a small sequence from M3ED and run some inference tasks on it with pretrained weights. Head over to [`[minimal.ipynb]`](minimal.ipynb) to explore the inference pipeline for F<sup>3</sup> and its downstream variants. This is the **recommended** way to get started. You can also load pretrained F<sup>3</sup> models using `torch.hub` as shown below.
+
+#### Using F<sup>3</sup> with `torch.hub`
+
+You can directly load pretrained F<sup>3</sup> models using PyTorch Hub without cloning the repository:
+
+```python
+import torch
+model = torch.hub.load('grasp-lyrl/fast-feature-fields', 'f3',
+                      name='1280x720x20_patchff_ds1_small', 
+                      pretrained=True, return_feat=True, return_logits=False)
+```
+
+The `name` parameter can be replaced with any of the configuration names available under `confs/ff/modeloptions/` (without the `.yml` extension).
 
 
 ### Training an F<sup>3</sup>
