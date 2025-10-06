@@ -29,6 +29,7 @@ MODEL_NAME_TO_CKPT = {
     #! TODO: Add the rest of the models here
 }
 
+HERE = str(Path(__file__).parent.resolve())
 
 def calculate_receptive_field(layers):
     """
@@ -684,7 +685,7 @@ def f3(pretrained: bool=False, **kwargs) -> nn.Module:
     assert "name" in kwargs, "Please provide the config file name with the 'name' argument."
 
     name = kwargs.pop("name")
-    cfg = 'confs/ff/modeloptions/' + name + '.yml'
+    cfg = Path(HERE) / 'confs/ff/modeloptions' / f'{name}.yml'
     assert Path(cfg).is_file(), f"Config file {cfg} does not exist."
 
     model = init_f3_model(cfg, **kwargs)
