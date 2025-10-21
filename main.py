@@ -44,6 +44,7 @@ def main():
     logger.info("#"*50)
     eff = init_event_model(args.eventff["config"], return_logits=True, return_loss=True, loss_fn=args.loss_fn).to(device)
     eff.save_config(f"{models_path}/config.yml")
+    eff_uncompiled = eff  # Keep reference to non-compiled model
     if args.compile: eff = torch.compile(eff, fullgraph=False)
 
     logger.info(f"Feature Field: {eff}")
@@ -115,6 +116,8 @@ def main():
                     "optimizer": optimizer.optimizer.state_dict(),
                     "scheduler": scheduler.scheduler.state_dict()
                 }, f"{models_path}/best.pth")
+                if args.compile:
+                    accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/best_uncompiled.pth")
                 if accelerator.is_local_main_process:
                     logger.info(f"Saving best model at epoch: {epoch}, Loss: {best_loss}, Acc: {best_acc}")
             if val_f1 > best_f1:
@@ -128,6 +131,8 @@ def main():
                     "optimizer": optimizer.optimizer.state_dict(),
                     "scheduler": scheduler.scheduler.state_dict()
                 }, f"{models_path}/best_f1.pth")
+                if args.compile:
+                    accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/best_f1_uncompiled.pth")
                 if accelerator.is_local_main_process:
                     logger.info(f"Saving best f1 model at epoch: {epoch}, Loss: {best_loss}, Acc: {best_acc}, F1: {best_f1}")
 
@@ -141,6 +146,8 @@ def main():
             "optimizer": optimizer.optimizer.state_dict(),
             "scheduler": scheduler.scheduler.state_dict()
         }, f"{models_path}/last.pth")
+        if args.compile:
+            accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/last_uncompiled.pth")
 
         # For long runs we want intermediate checkpoints
         if (epoch+1) % args.log_interval == 0:
@@ -153,6 +160,8 @@ def main():
                 "optimizer": optimizer.optimizer.state_dict(),
                 "scheduler": scheduler.scheduler.state_dict()
             }, f"{models_path}/checkpoint_{epoch}.pth")
+            if args.compile:
+                accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/checkpoint_{epoch}_uncompiled.pth")
     accelerator.end_training()
 
 
