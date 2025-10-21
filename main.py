@@ -84,7 +84,9 @@ def main():
             logger.info("No weights to load, starting from scratch.")
 
 
-    eff, optimizer, train_loader, val_loader, scheduler = accelerator.prepare(eff, optimizer, train_loader, val_loader, scheduler)
+    eff_uncompiled, eff, optimizer, train_loader, val_loader, scheduler = accelerator.prepare(
+        eff_uncompiled, eff, optimizer, train_loader, val_loader, scheduler
+    )
 
     if resume: val_loss, val_acc, val_f1 = np.inf, 0, 0
     else:      val_loss, val_acc, val_f1 = validate(args, eff, val_loader, start, accelerator=accelerator, logger=logger)
@@ -95,6 +97,8 @@ def main():
 
         accelerator.wait_for_everyone()
         unwrapped_eff = accelerator.unwrap_model(eff)
+        if args.compile:
+            unwrapped_eff_uncompiled = accelerator.unwrap_model(eff_uncompiled)
 
         if (epoch+1) % args.val_interval == 0:
             save_preds = True if (epoch+1) % args.log_interval == 0 else False
@@ -103,6 +107,8 @@ def main():
 
             accelerator.wait_for_everyone()
             unwrapped_eff = accelerator.unwrap_model(eff)
+            if args.compile:
+                unwrapped_eff_uncompiled = accelerator.unwrap_model(eff_uncompiled)
 
             if val_loss < best_loss:
                 best_loss = val_loss
@@ -117,7 +123,7 @@ def main():
                     "scheduler": scheduler.scheduler.state_dict()
                 }, f"{models_path}/best.pth")
                 if args.compile:
-                    accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/best_uncompiled.pth")
+                    accelerator.save(unwrapped_eff_uncompiled.state_dict(), f"{models_path}/best_uncompiled.pth")
                 if accelerator.is_local_main_process:
                     logger.info(f"Saving best model at epoch: {epoch}, Loss: {best_loss}, Acc: {best_acc}")
             if val_f1 > best_f1:
@@ -132,7 +138,7 @@ def main():
                     "scheduler": scheduler.scheduler.state_dict()
                 }, f"{models_path}/best_f1.pth")
                 if args.compile:
-                    accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/best_f1_uncompiled.pth")
+                    accelerator.save(unwrapped_eff_uncompiled.state_dict(), f"{models_path}/best_f1_uncompiled.pth")
                 if accelerator.is_local_main_process:
                     logger.info(f"Saving best f1 model at epoch: {epoch}, Loss: {best_loss}, Acc: {best_acc}, F1: {best_f1}")
 
@@ -147,7 +153,7 @@ def main():
             "scheduler": scheduler.scheduler.state_dict()
         }, f"{models_path}/last.pth")
         if args.compile:
-            accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/last_uncompiled.pth")
+            accelerator.save(unwrapped_eff_uncompiled.state_dict(), f"{models_path}/last_uncompiled.pth")
 
         # For long runs we want intermediate checkpoints
         if (epoch+1) % args.log_interval == 0:
@@ -161,7 +167,7 @@ def main():
                 "scheduler": scheduler.scheduler.state_dict()
             }, f"{models_path}/checkpoint_{epoch}.pth")
             if args.compile:
-                accelerator.save(eff_uncompiled.state_dict(), f"{models_path}/checkpoint_{epoch}_uncompiled.pth")
+                accelerator.save(unwrapped_eff_uncompiled.state_dict(), f"{models_path}/checkpoint_{epoch}_uncompiled.pth")
     accelerator.end_training()
 
 

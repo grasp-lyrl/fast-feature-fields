@@ -1,13 +1,20 @@
 import torch
 from tqdm import tqdm
+from copy import deepcopy
 
-from f3.utils import ev_to_grid, tp_tn_fp_fn, acc_f1
+from f3.utils import ev_to_grid, tp_tn_fp_fn, acc_f1, get_crop_targets, crop_and_resize_targets
 
 
 def train_fixed_time(args, eff, train_loader, optimizer, scheduler, epoch,
                      logger=None, accelerator=None, iters_to_accumulate=1):
     train_loss, train_acc, train_f1 = 0, 0, 0
     tp, tn, fp, fn, iter_loss = 0, 0, 0, 0, 0
+    pred_frame_size = deepcopy(args.frame_sizes) + [args.time_pred // args.bucket]
+
+    # Initialization for cropping and resizing
+    crop_resize_training = getattr(args, 'random_crop_resize', None)
+    if crop_resize_training is not None:
+        crop_size, ctx_out_resolution, pred_out_resolution, pred_frame_size = get_crop_targets(args)
 
     for idx, data in tqdm(enumerate(train_loader), total=len(train_loader), disable=not accelerator.is_local_main_process):
         ff_events, pred_events, ff_counts, pred_counts, valid_mask = data # (N,3) or (N,4), (B), (B,W,H,2) or (B,W,H,T,2), (B, W, H) #! T: max prediction time bins time_pred//bucket
@@ -15,7 +22,13 @@ def train_fixed_time(args, eff, train_loader, optimizer, scheduler, epoch,
         if not args.polarity[0]: ff_events = ff_events[..., :3]
         if not args.polarity[1]: pred_events = pred_events[..., :3]
 
-        pred_event_grid = ev_to_grid(pred_events, pred_counts, *args.frame_sizes, args.time_pred // args.bucket)
+        if crop_resize_training is not None:
+            ff_events, pred_events, ff_counts, pred_counts, valid_mask = crop_and_resize_targets(
+                args, crop_size, ff_events, pred_events, ff_counts, pred_counts, valid_mask,
+                ctx_out_resolution, pred_out_resolution, pred_frame_size
+            )
+
+        pred_event_grid = ev_to_grid(pred_events, pred_counts, *pred_frame_size)
 
         with accelerator.accumulate(eff):
             predlogits, loss = eff(ff_events, ff_counts, pred_event_grid, valid_mask) # (B,N,3) -> (B,W,H,1) or (B,W,H,T)

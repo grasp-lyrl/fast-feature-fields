@@ -21,6 +21,10 @@ def crop_params(src_ofst_res: torch.Tensor, crop_size: torch.Tensor):
         crop_size: [2] -> [crop_size_x, crop_size_y]
         
         We want atleast 1/4th of the crop to have the source image in it.
+        This method enables running a smaller sized event camera on a larger
+        resolution model by randomly cropping F3's output.
+
+        This is very specific to F3, use ``get_random_crop_params`` for general usecases.
     """
     limits = torch.stack([
         torch.max(src_ofst_res[:, :2] - crop_size//2, torch.zeros(2, dtype=torch.int32)), # 120 - 512//2
@@ -31,6 +35,31 @@ def crop_params(src_ofst_res: torch.Tensor, crop_size: torch.Tensor):
     offsets = limits[:,0] # [B, 2]
     cparams = (torch.rand(src_ofst_res.shape[0], 2) * ranges + offsets).int() # [B, 2]
     return torch.cat([cparams, cparams + crop_size], dim=1) # [B, 4]
+
+
+def get_random_crop_params(input_size: tuple[int, int], output_size: tuple[int, int], batch_size: int = 1) -> torch.Tensor:
+    """Get parameters for ``crop`` for a random crop.
+
+    Args:
+        input_size (tuple): Size of the input image.
+        output_size (tuple): Expected output size of the crop.
+        batch_size (int): Number of crop parameters to generate. Default: 1.
+
+    Returns:
+        torch.Tensor: params (i, j, i+h, j+w) Shape: (batch_size, 4)
+    """
+    w, h = input_size
+    tw, th = output_size
+
+    if h < th or w < tw:
+        raise ValueError(f"Required crop size {(th, tw)} is larger than input image size {(h, w)}")
+
+    if w == tw and h == th:
+        return torch.tensor([[0, 0, w, h]] * batch_size)
+
+    i = torch.randint(0, w - tw + 1, size=(batch_size,))
+    j = torch.randint(0, h - th + 1, size=(batch_size,))
+    return torch.stack([i, j, i + torch.full((batch_size,), tw), j + torch.full((batch_size,), th)], dim=1)
 
 
 @torch.compile
@@ -51,6 +80,93 @@ def batch_cropper(images, cparams):
         images[i, :, cparams[i, 0]:cparams[i, 2], cparams[i, 1]:cparams[i, 3]]
         for i in range(images.shape[0])
     ])
+
+
+def batch_cropper_and_resizer_events(
+    events: torch.Tensor,
+    counts: torch.Tensor,
+    cparams: torch.Tensor,
+    in_resolution: tuple[int, int, int],
+    out_resolution: tuple[int, int, int]=None
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    Crop and resize a batch of events using the provided crop parameters.
+
+    For example.
+        The events could be from a 1280x720 sensor.
+        The crop params could be 960x720,
+        The resized output could be 640x480.
+
+    Parameters:
+        events: Batch of events [N, 3] where N = N1 + N2 + ... + NB
+        counts: Event counts per batch [B]
+        in_resolution: Input resolution (W, H, T)
+        out_resolution: Output resolution (W, H, T). If None, no resizing/deduplication is performed.
+        cparams: Crop parameters [B, 4]
+
+        events format: [x, y, t]. They are normalized by resolution.
+
+    Returns:
+        Cropped events [N', 3] where N' = N1' + N2' + ... + NB'
+        New counts [B']. Ni' could be zero, so batch size could reduce (unlikely, but need to handle).
+    """
+    batch_idx = torch.repeat_interleave(
+        torch.arange(len(counts), device=events.device, dtype=torch.int32),
+        counts
+    )
+    event_cparams = cparams[batch_idx]  # [N, 4]
+
+    if events.max() <= 1.0:
+        events = unnormalize_events(events, in_resolution)
+    x, y, t = events[:, 0], events[:, 1], events[:, 2]
+
+    # We only support spatial cropping 
+    crop_mask = (
+        (x >= event_cparams[:, 0]) &
+        (x < event_cparams[:, 2]) &
+        (y >= event_cparams[:, 1]) &
+        (y < event_cparams[:, 3])
+    )
+
+    b_resized = batch_idx[crop_mask]
+
+    x_resized = (x[crop_mask] - event_cparams[crop_mask, 0]).float() / (
+        event_cparams[crop_mask, 2] - event_cparams[crop_mask, 0]
+    )
+
+    y_resized = (y[crop_mask] - event_cparams[crop_mask, 1]).float() / (
+        event_cparams[crop_mask, 3] - event_cparams[crop_mask, 1]
+    )
+
+    if out_resolution is not None:
+        x_resized = (x_resized * out_resolution[0]).round().int().clamp(0, out_resolution[0]-1)
+        y_resized = (y_resized * out_resolution[1]).round().int().clamp(0, out_resolution[1]-1)
+        t_resized = t[crop_mask]
+
+        # Create unique key combining x, y, and t
+        unique_events = torch.unique(
+            torch.stack([b_resized, x_resized, y_resized, t_resized], dim=1),
+            dim=0
+        )
+
+        b_resized = unique_events[:, 0]
+        x_resized = unique_events[:, 1].float() / out_resolution[0]
+        y_resized = unique_events[:, 2].float() / out_resolution[1]
+        t_resized = unique_events[:, 3].float() / out_resolution[2]
+    else:
+        t_resized = t[crop_mask].float() / in_resolution[2]
+
+    cropped_events = torch.zeros(len(x_resized), events.shape[1], device=events.device)
+    cropped_events[:, 0] = x_resized
+    cropped_events[:, 1] = y_resized
+    cropped_events[:, 2] = t_resized
+
+    new_counts = torch.bincount(
+        b_resized,
+        minlength=len(counts)
+    )
+
+    return cropped_events, new_counts
 
 
 def calculate_receptive_field(layers):
@@ -178,3 +294,50 @@ def log_dict(logger, dict):
         else:
             msg += f"{k}: {v}, "
     logger.info(msg)
+
+
+# Helper functions for training and validation cropping and resizing
+def get_crop_targets(args):
+    # Initialization for cropping and resizing
+    crop_resize_training = args.random_crop_resize
+    crop_size = crop_resize_training['crop']
+    resize_size = crop_resize_training.get('resize', None)
+
+    ctx_out_resolution, pred_out_resolution = None, None
+    if resize_size is not None:
+        pred_frame_size = resize_size + [args.time_pred // args.bucket]
+        ctx_out_resolution = resize_size + [args.time_ctx // args.bucket]
+        pred_out_resolution = resize_size + [args.time_pred // args.bucket]
+    else:
+        pred_frame_size = crop_size + [args.time_pred // args.bucket]
+
+    return crop_size, ctx_out_resolution, pred_out_resolution, pred_frame_size
+
+
+def crop_and_resize_targets(args, crop_size, ff_events, pred_events, ff_counts, pred_counts,
+                            valid_mask, ctx_out_resolution, pred_out_resolution, pred_frame_size):
+    # Crop and resize events
+    cparams = get_random_crop_params(
+        args.frame_sizes, crop_size[:2], batch_size=ff_counts.shape[0]
+    ).to(ff_events.device)
+
+    ff_events, ff_counts = batch_cropper_and_resizer_events(
+        ff_events,
+        ff_counts,
+        cparams,
+        in_resolution=args.frame_sizes + [args.time_ctx // args.bucket],
+        out_resolution=ctx_out_resolution
+    )
+
+    pred_events, pred_counts = batch_cropper_and_resizer_events(
+        pred_events,
+        pred_counts,
+        cparams,
+        in_resolution=args.frame_sizes + [args.time_pred // args.bucket],
+        out_resolution=pred_out_resolution
+    )
+
+    valid_mask = torch.ones(ff_counts.shape[0], *pred_frame_size[:2], dtype=torch.bool, device=ff_events.device)
+    # We should do interpolate nearest ideally. No need for now.
+
+    return ff_events, pred_events, ff_counts, pred_counts, valid_mask
