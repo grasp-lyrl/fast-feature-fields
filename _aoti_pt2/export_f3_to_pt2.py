@@ -64,6 +64,8 @@ def compile_engine_and_infer(args):
                            return_logits=False,
                            single_batch_mode=True).cuda().eval()
 
+    # This is a hack to load compiled weights into a non-compiled model
+    # This is an artifact of the fact, that we do not save the non-compiled model
     model_compiled = torch.compile(
         model,
         fullgraph=True,
@@ -104,7 +106,12 @@ def compile_engine_and_infer(args):
                     "max_autotune": True,
                 }
             )
+
+    # Get the size of the exported model
+    model_size_bytes = os.path.getsize(pt2_path)
+    model_size_mb = model_size_bytes / (1024 * 1024)
     print(f"Exported and compiled model to {pt2_path}")
+    print(f"Model size: {model_size_mb:.2f} MB")
 
     ############################################################
     #                Inference benchmarking                    #
@@ -132,15 +139,15 @@ def compile_engine_and_infer(args):
 
 if __name__ == '__main__':
     args = parse_args()
-    print("Configuration:")
-    print(f"  Model name: {args.model_name}")
-    print(f"  Build hashed feats: {args.build_hashed_feats}")
-    print(f"  Output name: {args.output_name}")
-    print(f"  Warmup runs: {args.warmup_runs}")
-    print(f"  Timed runs: {args.runs}")
-    print(f"  Inference results for: {args.n_events:,} events")
-    print(f"  Compile for variable events: {args.variable_events}")
-    print(f"  Checkpoint file: {args.checkpoint}")
+    print("⚙️  Configuration:")
+    print(f"     Model name: {args.model_name}")
+    print(f"     Build hashed feats: {args.build_hashed_feats}")
+    print(f"     Output name: {args.output_name}")
+    print(f"     Warmup runs: {args.warmup_runs}")
+    print(f"     Timed runs: {args.runs}")
+    print(f"     Inference results for: {args.n_events:,} events")
+    print(f"     Compile for variable events: {args.variable_events}")
+    print(f"     Checkpoint file: {args.checkpoint}")
     print()
     
     compile_engine_and_infer(args)
