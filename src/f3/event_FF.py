@@ -243,8 +243,10 @@ class EventPatchFF(nn.Module):
                  convdilations: list[int]=[1, 1], # Dilation factor
                  dskernels: list[int]=[5, 5], # Downsample kernel size
                  dsstrides: list[int]=[2, 2], # Downsample stride
-                 patch_size=16,
-                 use_decoder_block: bool=True,
+                 patch_size=16, # Patch size for what each feature pixel predicts in the future
+                 use_decoder_block: bool=False, # Whether to use decoder block or not
+                 use_upsampling: bool=False, # Whether to use bilinear upsample or not
+                 upsampling_dims: int=32, # Output conv hidden dimensions
                  return_logits: bool=False, # Whether to return the logits or not
                  return_feat: bool=False, # Whether to return the key intermediate features or not
                  return_loss: bool=False, # Whether to return the loss or not
@@ -254,7 +256,7 @@ class EventPatchFF(nn.Module):
                 ):
         super().__init__()
         assert len(dims) == len(convkernels) == len(convdepths) == len(dskernels) == len(dsstrides),\
-               f"Length of dims, convkernels, and convdepths should be the same."
+               "Length of dims, convkernels, and convdepths should be the same."
         self._nstages = len(dims) 
 
         self.logger = logging.getLogger("__main__")
@@ -269,9 +271,13 @@ class EventPatchFF(nn.Module):
         self.convdilations = convdilations
         self.dskernels = dskernels
         self.dsstrides = dsstrides
+
+        self.use_upsampling = use_upsampling
+        self.upsampling_dims = upsampling_dims
+
         self.patch_size = patch_size
         self.multi_hash_encoder_args = copy(multi_hash_encoder)
-        self.feature_size = dims[-1]
+        self.feature_size = dims[-1] if not use_upsampling else upsampling_dims
 
         self.use_decoder_block = use_decoder_block
         self.variable_mode = variable_mode
@@ -284,7 +290,7 @@ class EventPatchFF(nn.Module):
         self.downsample = torch.prod(torch.tensor(dsstrides)).item()
         self.padding = (self.patch_size - 1) // 2
 
-        assert self.downsample == self.patch_size, f"Downsample should be equal to the patch size."
+        assert self.use_upsampling or (self.downsample == self.patch_size), "Downsample should be equal to the patch size."
 
         gp_resolution = (
             torch.log(torch.tensor(multi_hash_encoder["finest_resolution"], dtype=torch.float32)) -\
@@ -332,9 +338,65 @@ class EventPatchFF(nn.Module):
                 for _ in range(convdepths[i])
             ]))
 
-        if self.use_decoder_block:
-            self.decoder = Block(dim=dims[-1], kernel_size=7)
-        self.pred = nn.Conv2d(dims[-1], patch_size**2 * T, kernel_size=1)
+        if use_upsampling:
+            self.upsample_stages = nn.ModuleList()
+            for i in range(self._nstages - 1, 0, -1):
+                # Upsample from dims[i] to dims[i-1], then concatenate with skip (dims[i-1])
+                # Result will be 2*dims[i-1] channels after concatenation
+                upsample_stage = nn.Sequential(
+                    nn.ConvTranspose2d(dims[i], dims[i-1], kernel_size=dsstrides[i], stride=dsstrides[i]),
+                    nn.GELU(),
+                    nn.Conv2d(2*dims[i-1], dims[i-1], kernel_size=1),
+                    LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
+                    nn.GELU(),
+                    nn.Conv2d(dims[i-1], dims[i-1], kernel_size=3, padding=1, groups=dims[i-1]), # Depthwise conv
+                    LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
+                )
+                self.upsample_stages.append(upsample_stage)
+
+            self.upsample_stages.append(
+                nn.ConvTranspose2d(
+                    dims[0],
+                    upsampling_dims,
+                    kernel_size=dsstrides[0] // self.patch_size,
+                    stride=dsstrides[0] // self.patch_size
+                )
+            )
+
+            self.downsample_to_patchsize = nn.Conv2d(
+                in_channels,
+                upsampling_dims,
+                kernel_size=self.patch_size,
+                stride=self.patch_size,
+                padding=(self.patch_size - 1) // 2
+            )
+
+            self.outconv = nn.Sequential(
+                nn.GELU(),
+                nn.Conv2d(2*upsampling_dims, upsampling_dims, kernel_size=1),
+                LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+                nn.GELU(),
+                nn.Conv2d(
+                    upsampling_dims,
+                    upsampling_dims,
+                    kernel_size=3,
+                    padding=1,
+                    groups=upsampling_dims
+                ),
+                LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+            )
+
+        if use_decoder_block:
+            self.decoder = Block(
+                dim=dims[-1] if not use_upsampling else upsampling_dims,
+                kernel_size=7
+            )
+
+        self.pred = nn.Conv2d(
+            dims[-1] if not use_upsampling else upsampling_dims,
+            patch_size**2 * T,
+            kernel_size=1
+        )
 
         self.apply(self._init_weights)
         
@@ -376,8 +438,8 @@ class EventPatchFF(nn.Module):
     
     def unpatchify(self, x):
         """
-            x: (N, patch_size**2 * T, W/downsample, H/downsample)
-            imgs: (N, W*downsample, H*downsample, T)
+            x: (N, patch_size**2 * T, W/patch_size, H/patch_size)
+            imgs: (N, W*patch_size, H*patch_size, T)
         """
         if self.patch_size == 1:
             return x.permute(0, 2, 3, 1)
@@ -398,8 +460,8 @@ class EventPatchFF(nn.Module):
             multi_hash_encoder=conf["multi_hash_encoder"], T = conf["T"], frame_sizes=conf["frame_sizes"],
             dims=conf["dims"], convkernels=conf["convkernels"], convdepths=conf["convdepths"],
             convbtlncks=conf["convbtlncks"], convdilations=conf["convdilations"],
-            dskernels=conf["dskernels"], dsstrides=conf["dsstrides"],
-            patch_size=conf["patch_size"], use_decoder_block=conf["use_decoder_block"],
+            dskernels=conf["dskernels"], dsstrides=conf["dsstrides"], patch_size=conf["patch_size"],
+            use_upsampling=conf.get("use_upsampling", False), upsampling_dims=conf.get("upsampling_dims", [128, 32]),
             return_logits=return_logits, return_loss=return_loss, return_feat=return_feat,
             loss_fn=loss_fn, device=conf.get("device", "cuda"), variable_mode=conf.get("variable_mode", True),
         )
@@ -411,6 +473,7 @@ class EventPatchFF(nn.Module):
                 "frame_sizes": self.frame_sizes, "dims": self.dims, "convkernels": self.convkernels,
                 "convdepths": self.convdepths, "convbtlncks": self.convbtlncks, "convdilations": self.convdilations,
                 "dskernels": self.dskernels, "dsstrides": self.dsstrides, "patch_size": self.patch_size,
+                "use_upsampling": self.use_upsampling, "upsampling_dims": self.upsampling_dims,
                 "use_decoder_block": self.use_decoder_block, "variable_mode": self.variable_mode
             }, f, default_flow_style=None)
 
@@ -424,10 +487,9 @@ class EventPatchFF(nn.Module):
 
         encoded_events = self.multi_hash_encoder(currentBlock) # (B,N,3)/(B,N,4) -> (B,N,L*F)
 
-        feature_field = torch.zeros(B, encoded_events.shape[-1], self.w, self.h, device=encoded_events.device, dtype=encoded_events.dtype)
+        feature_field = torch.zeros((B, self.w, self.h, encoded_events.shape[-1]), device=encoded_events.device)
         batch_indices = torch.arange(B).to(encoded_events.device).view(-1, 1).expand(B, N)
-        feature_field[batch_indices, :, curr_x, curr_y] += encoded_events
-
+        feature_field.index_put_((batch_indices, curr_x, curr_y), encoded_events, accumulate=True)
         return feature_field
 
     def forward_variable(self, currentBlock: torch.Tensor, eventCounts: torch.Tensor) -> torch.Tensor:
@@ -441,10 +503,10 @@ class EventPatchFF(nn.Module):
 
         encoded_events = self.multi_hash_encoder(currentBlock.unsqueeze(0)).clone().squeeze(0) # (N,3)/(N,4) -> (N,L*F)
 
-        feature_field = torch.zeros((B, encoded_events.shape[-1], self.w, self.h), device=encoded_events.device, dtype=encoded_events.dtype)
+        feature_field = torch.zeros((B, self.w, self.h, encoded_events.shape[-1]), device=encoded_events.device)
         batch_indices = torch.repeat_interleave(eventCounts).int() # Offending line, cant compile. I am not spending time on this for now.
-        feature_field[batch_indices, :, curr_x, curr_y] += encoded_events
-        return feature_field
+        feature_field.index_put_((batch_indices, curr_x, curr_y), encoded_events, accumulate=True)
+        return feature_field.permute(0, 3, 1, 2)  # (B, C, W, H)
 
     def forward_loss(self, logits: torch.Tensor, futureBlock: torch.Tensor, valid_mask: torch.Tensor) -> torch.Tensor:
         """
@@ -470,9 +532,28 @@ class EventPatchFF(nn.Module):
         else:
             x = self.forward_fixed(currentBlock) # (B,C,W,H)
 
+        skip_connections = []  # Store the input as the first skip connection
+        if self.use_upsampling:
+            skip_connections.append(x)
+
         for i in range(self._nstages):
             x = self.downsample_layers[i](x)
             x = self.stages[i](x)
+            if self.use_upsampling and i < self._nstages - 1:
+                skip_connections.append(x)
+
+        if self.use_upsampling:
+            for i, upsample_stage in enumerate(self.upsample_stages[:-1]):
+                skip = skip_connections[-(i+1)]  # Get skip connections in reverse order
+                x = upsample_stage[0](x)  # TransposeConv2d
+                x = torch.cat([skip, x], dim=1)
+                for layer in upsample_stage[1:]:
+                    x = layer(x)
+
+            x = self.upsample_stages[-1](x)  # Final upsample stage
+            downsampled_hash = self.downsample_to_patchsize(skip_connections[0]) # (B, C, W/ps, H/ps)
+            x = torch.cat([x, downsampled_hash], dim=1)  # Concatenate along channel dimension
+            x = self.outconv(x)
 
         if self.return_feat:
             feat = x.permute(0, 2, 3, 1)
@@ -482,9 +563,9 @@ class EventPatchFF(nn.Module):
 
         if self.use_decoder_block:
             x = self.decoder(x)
-        logits = self.pred(x) # (B,C,W,H) -> (B,patch_size**2*T,W/ds,H/ds)
+        logits = self.pred(x) # (B,C,W,H) -> (B,patch_size**2*T,W,H)
 
-        logits = self.unpatchify(logits) # (B,patch_size**2*T,W/ds,H/ds) -> (B,W,H,T)
+        logits = self.unpatchify(logits) # (B,patch_size**2*T,W/ps,H/ps) -> (B,W,H,T)
         if self.return_loss:
             loss = self.forward_loss(logits, futureBlock, valid_mask)
 
