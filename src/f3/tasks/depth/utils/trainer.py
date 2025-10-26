@@ -30,9 +30,9 @@ def train_fixed_time_disparity(args, model, train_loader, optimizer, scheduler, 
             for i in range(disparity.shape[0])
         ])
 
-        with torch.autocast(device_type="cuda", enabled=args.amp, dtype=torch.bfloat16):
+        with torch.autocast(device_type="cuda", enabled=args.amp, dtype=torch.float16):
             disparity_pred = model(ff_events, event_counts, cparams)[0] # (B,N,3) -> (B,C,H,W)
-            disparity_valid_mask = disparity < args.max_disparity # don't want absurdly high disparities
+            disparity_valid_mask = disparity < args.max_disparity # don't want asburdly high disparities
             if args.loss == "siloggrad":
                 with torch.no_grad():
                     grad = pseudo_model(ff_events, event_counts, cparams)[0] # (B,N,3) -> (B,H,W)

@@ -5,7 +5,7 @@ from tqdm import tqdm
 from copy import deepcopy
 
 from f3.utils import (display_predicted_shifts_frames, smooth_time_weighted_rgb_encoding,
-                      ev_to_grid, ev_to_frames, tp_tn_fp_fn, acc_f1)
+                      ev_to_grid, ev_to_frames, tp_tn_fp_fn, acc_f1, get_crop_targets, crop_and_resize_targets)
 
 
 @torch.no_grad()
@@ -15,21 +15,22 @@ def validate_fixed_time(args, eff, val_loader, epoch,
     val_loss, val_acc, val_f1 = 0, 0, 0
     pred_frame_size = deepcopy(args.frame_sizes) + [args.time_pred // args.bucket]
 
-    # Update pred_frame_size if cropping/resizing is enabled (shouldn't be for validation, but kept for consistency)
+    # Initialization for cropping and resizing
     crop_resize_training = getattr(args, 'random_crop_resize', None)
     if crop_resize_training is not None:
-        resize_size = crop_resize_training.get('resize', None)
-        if resize_size is not None:
-            pred_frame_size = resize_size + [args.time_pred // args.bucket]
-        else:
-            crop_size = crop_resize_training['crop']
-            pred_frame_size = crop_size + [args.time_pred // args.bucket]
+        crop_size, ctx_out_resolution, pred_out_resolution, pred_frame_size = get_crop_targets(args)
 
     for idx, data in tqdm(enumerate(val_loader), total=len(val_loader), disable=not accelerator.is_local_main_process):
         ff_events, pred_events, ff_counts, pred_counts, valid_mask = data # (N,3) or (N,4), (B), (B,W,H,2) or (B,W,H,T,2) #! T: max prediction time bins time_pred//bucket
 
         if not args.polarity[0]: ff_events = ff_events[..., :3] # (B,N,4) -> (B,N,3)
         if not args.polarity[1]: pred_events = pred_events[..., :3]
+
+        if crop_resize_training is not None:
+            ff_events, pred_events, ff_counts, pred_counts, valid_mask = crop_and_resize_targets(
+                args, crop_size, ff_events, pred_events, ff_counts, pred_counts, valid_mask,
+                ctx_out_resolution, pred_out_resolution, pred_frame_size
+            )
 
         pred_event_grid = ev_to_grid(pred_events, pred_counts, *pred_frame_size)
 

@@ -312,3 +312,32 @@ def get_crop_targets(args):
         pred_frame_size = crop_size + [args.time_pred // args.bucket]
 
     return crop_size, ctx_out_resolution, pred_out_resolution, pred_frame_size
+
+
+def crop_and_resize_targets(args, crop_size, ff_events, pred_events, ff_counts, pred_counts,
+                            valid_mask, ctx_out_resolution, pred_out_resolution, pred_frame_size):
+    # Crop and resize events
+    cparams = get_random_crop_params(
+        args.frame_sizes, crop_size[:2], batch_size=ff_counts.shape[0]
+    ).to(ff_events.device)
+
+    ff_events, ff_counts = batch_cropper_and_resizer_events(
+        ff_events,
+        ff_counts,
+        cparams,
+        in_resolution=args.frame_sizes + [args.time_ctx // args.bucket],
+        out_resolution=ctx_out_resolution
+    )
+
+    pred_events, pred_counts = batch_cropper_and_resizer_events(
+        pred_events,
+        pred_counts,
+        cparams,
+        in_resolution=args.frame_sizes + [args.time_pred // args.bucket],
+        out_resolution=pred_out_resolution
+    )
+
+    valid_mask = torch.ones(ff_counts.shape[0], *pred_frame_size[:2], dtype=torch.bool, device=ff_events.device)
+    # We should do interpolate nearest ideally. No need for now.
+
+    return ff_events, pred_events, ff_counts, pred_counts, valid_mask

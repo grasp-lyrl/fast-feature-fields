@@ -383,7 +383,7 @@ class EventPatchFF(nn.Module):
                     padding=1,
                     groups=upsampling_dims
                 ),
-                # LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+                LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
             )
 
         if use_decoder_block:
