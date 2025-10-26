@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-from .utils_gen import collate_fn_general
+from .utils_gen import collate_fn_general, get_random_crop_params, batch_cropper_and_resizer_events
 
 from numpy.random import default_rng
 rng = default_rng(42)
@@ -176,7 +176,7 @@ class EventDatasetSingleHDF5(BaseExtractor):
     def __init__(self, hdf5_file: str, timestamps_50khz_file: str, 
                  w: int=1280, h: int=720, min_numevents_ctx: int=200000, max_numevents_ctx: int=800000,
                  time_ctx: int=20000, time_pred: int=20000, bucket: int=1000, randomize_ctx: bool=True,
-                 camera: str="left", dtype: str="m3ed"):
+                 camera: str="left", dtype: str="m3ed", random_crop_resize: dict=None):
         """
             Args:
                 hdf5_file: str
@@ -203,17 +203,44 @@ class EventDatasetSingleHDF5(BaseExtractor):
                     The camera to use. Can be "left" or "right"
                 dtype: str
                     Dataset type. Can be "m3ed" or "dsec" or "mvsec". Changes some of the resolution and path options based on the dataset
+                random_crop_resize: dict
+                    Dictionary with 'crop' and optional 'resize' keys for random cropping and resizing
         """
         super(EventDatasetSingleHDF5, self).__init__(hdf5_file, timestamps_50khz_file, w, h, time_ctx, time_pred,
                                                      bucket, max_numevents_ctx, randomize_ctx, camera, dtype)
         self.logger = logging.getLogger("__main__")
         self.min_numevents_ctx = int(min_numevents_ctx * (self.w / w) * (self.h / h)) # rescale the min events based on the camera resolution
 
+        self.configure_crop_resize(random_crop_resize)
         self.process_metadata()
         self.logstats()
 
     def __len__(self):
         return self.numblocks
+
+    def configure_crop_resize(self, random_crop_resize: dict=None):
+        self.random_crop_resize = random_crop_resize
+        self.ctx_out_resolution = None
+        self.pred_out_resolution = None
+        self.pred_frame_size = [self.w, self.h, self.time_pred // self.bucket]
+
+        if random_crop_resize is not None:
+            self.crop_size = random_crop_resize['crop']
+            resize_size = random_crop_resize.get('resize', None)
+
+            if resize_size is not None:
+                self.ctx_out_resolution = resize_size + [self.time_ctx // self.bucket]
+                self.pred_out_resolution = resize_size + [self.time_pred // self.bucket]
+                self.pred_frame_size = resize_size + [self.time_pred // self.bucket]
+            else:
+                self.pred_frame_size = self.crop_size + [self.time_pred // self.bucket]
+
+            #! Valid mask does not work for crop/resize mode of training yet.
+            self.logger.warning("⚠️ Valid mask does not work for crop/resize mode of training yet. Using full valid mask!")
+            if resize_size is not None:
+                self.valid_mask = torch.ones(resize_size, dtype=torch.bool)
+            else:
+                self.valid_mask = torch.ones(self.crop_size, dtype=torch.bool)
 
     def logstats(self):
         self.logger.info("DATALOADER SPECS:")
@@ -270,6 +297,31 @@ class EventDatasetSingleHDF5(BaseExtractor):
         t0 = self.valid_0_points[idx]
         ctx, totcnt_ctx = self.get_ctx_fixedtime(t0)
         pred, totcnt_pred = self.get_pred_fixedtime(t0)
+
+        # Apply random crop and resize if configured
+        if self.random_crop_resize is not None:
+            #! Need to make the crop params deterministic for validation...
+            cparams = get_random_crop_params(
+                self.trgt_res, self.crop_size, batch_size=1
+            )
+
+            #! Cropping does not support polarity and valid mask specifications yet
+            ctx, totcnt_ctx = batch_cropper_and_resizer_events(
+                ctx[:,:3], # Remove polarity for cropping
+                torch.tensor([totcnt_ctx], dtype=torch.int32),
+                cparams,
+                in_resolution=list(self.trgt_res) + [self.time_ctx // self.bucket],
+                out_resolution=self.ctx_out_resolution
+            )
+            pred, totcnt_pred = batch_cropper_and_resizer_events(
+                pred[:,:3], # Remove polarity for cropping
+                torch.tensor([totcnt_pred], dtype=torch.int32),
+                cparams,
+                in_resolution=list(self.trgt_res) + [self.time_pred // self.bucket],
+                out_resolution=self.pred_out_resolution
+            )
+            totcnt_ctx, totcnt_pred = totcnt_ctx[0].item(), totcnt_pred[0].item()
+
         return ctx, pred, totcnt_ctx, totcnt_pred, self.valid_mask
 
 
@@ -316,7 +368,8 @@ def get_dataloader_from_args(args: dict, logger: logging.Logger, shuffle: bool=T
         "min_numevents_ctx": args.min_numevents_ctx, "max_numevents_ctx": args.max_numevents_ctx,
         "time_ctx": args.time_ctx, "time_pred": args.time_pred, "bucket": args.bucket,
         "w": args.frame_sizes[0], "h": args.frame_sizes[1], "randomize_ctx": randomize_ctx,
-        "cameras": cameras, "ranges": ranges, "dtypes": dtypes
+        "cameras": cameras, "ranges": ranges, "dtypes": dtypes,
+        "random_crop_resize": getattr(args, 'random_crop_resize', None)
     }
     logger.info(f"Creating {mode} Dataloaders...")
     dataset = get_dataset_from_h5files(**kwargs)
