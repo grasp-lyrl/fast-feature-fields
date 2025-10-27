@@ -1,181 +1,181 @@
 datasets:
-- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+- dataset_path: data/car_urban_day_penno_small_loop/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop/50khz_car_urban_day_penno_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 0.5]
 
-- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
-  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+- dataset_path: data/car_urban_day_penno_big_loop/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop/50khz_car_urban_day_penno_big_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_day_ucity_small_loop_data/50khz_car_urban_day_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_day_ucity_small_loop/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop/50khz_car_urban_day_ucity_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
-  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+- dataset_path: data/car_urban_day_ucity_big_loop/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop/50khz_car_urban_day_ucity_big_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
-  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+- dataset_path: data/car_urban_day_city_hall/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall/50khz_car_urban_day_city_hall_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_data.h5
-  timestamps_path: data/car_urban_day_rittenhouse_data/50khz_car_urban_day_rittenhouse_data.npy
+- dataset_path: data/car_urban_day_rittenhouse/car_urban_day_rittenhouse_data.h5
+  timestamps_path: data/car_urban_day_rittenhouse/50khz_car_urban_day_rittenhouse_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_schuylkill_tunnel_data/car_urban_day_schuylkill_tunnel_data.h5
-  timestamps_path: data/car_urban_day_schuylkill_tunnel_data/50khz_car_urban_day_schuylkill_tunnel_data.npy
+- dataset_path: data/car_urban_day_schuylkill_tunnel/car_urban_day_schuylkill_tunnel_data.h5
+  timestamps_path: data/car_urban_day_schuylkill_tunnel/50khz_car_urban_day_schuylkill_tunnel_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_horse_data/car_urban_day_horse_data.h5
-  timestamps_path: data/car_urban_day_horse_data/50khz_car_urban_day_horse_data.npy
+- dataset_path: data/car_urban_day_horse/car_urban_day_horse_data.h5
+  timestamps_path: data/car_urban_day_horse/50khz_car_urban_day_horse_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+- dataset_path: data/car_urban_day_penno_small_loop/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop/50khz_car_urban_day_penno_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_penno_big_loop_data/car_urban_day_penno_big_loop_data.h5
-  timestamps_path: data/car_urban_day_penno_big_loop_data/50khz_car_urban_day_penno_big_loop_data.npy
+- dataset_path: data/car_urban_day_penno_big_loop/car_urban_day_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_big_loop/50khz_car_urban_day_penno_big_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_day_ucity_small_loop_data/50khz_car_urban_day_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_day_ucity_small_loop/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop/50khz_car_urban_day_ucity_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 0.5]
 
-- dataset_path: data/car_urban_day_ucity_big_loop_data/car_urban_day_ucity_big_loop_data.h5
-  timestamps_path: data/car_urban_day_ucity_big_loop_data/50khz_car_urban_day_ucity_big_loop_data.npy
+- dataset_path: data/car_urban_day_ucity_big_loop/car_urban_day_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_big_loop/50khz_car_urban_day_ucity_big_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_city_hall_data/car_urban_day_city_hall_data.h5
-  timestamps_path: data/car_urban_day_city_hall_data/50khz_car_urban_day_city_hall_data.npy
+- dataset_path: data/car_urban_day_city_hall/car_urban_day_city_hall_data.h5
+  timestamps_path: data/car_urban_day_city_hall/50khz_car_urban_day_city_hall_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_rittenhouse_data/car_urban_day_rittenhouse_data.h5
-  timestamps_path: data/car_urban_day_rittenhouse_data/50khz_car_urban_day_rittenhouse_data.npy
+- dataset_path: data/car_urban_day_rittenhouse/car_urban_day_rittenhouse_data.h5
+  timestamps_path: data/car_urban_day_rittenhouse/50khz_car_urban_day_rittenhouse_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_schuylkill_tunnel_data/car_urban_day_schuylkill_tunnel_data.h5
-  timestamps_path: data/car_urban_day_schuylkill_tunnel_data/50khz_car_urban_day_schuylkill_tunnel_data.npy
+- dataset_path: data/car_urban_day_schuylkill_tunnel/car_urban_day_schuylkill_tunnel_data.h5
+  timestamps_path: data/car_urban_day_schuylkill_tunnel/50khz_car_urban_day_schuylkill_tunnel_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_day_horse_data/car_urban_day_horse_data.h5
-  timestamps_path: data/car_urban_day_horse_data/50khz_car_urban_day_horse_data.npy
+- dataset_path: data/car_urban_day_horse/car_urban_day_horse_data.h5
+  timestamps_path: data/car_urban_day_horse/50khz_car_urban_day_horse_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
 # Night datasets
-- dataset_path: data/car_urban_night_penno_small_loop_data/car_urban_night_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_night_penno_small_loop_data/50khz_car_urban_night_penno_small_loop_data.npy
+- dataset_path: data/car_urban_night_penno_small_loop/car_urban_night_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_night_penno_small_loop/50khz_car_urban_night_penno_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 0.5]
 
-- dataset_path: data/car_urban_night_penno_small_loop_darker_data/car_urban_night_penno_small_loop_darker_data.h5
-  timestamps_path: data/car_urban_night_penno_small_loop_darker_data/50khz_car_urban_night_penno_small_loop_darker_data.npy
+- dataset_path: data/car_urban_night_penno_small_loop_darker/car_urban_night_penno_small_loop_darker_data.h5
+  timestamps_path: data/car_urban_night_penno_small_loop_darker/50khz_car_urban_night_penno_small_loop_darker_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_penno_big_loop_data/car_urban_night_penno_big_loop_data.h5
-  timestamps_path: data/car_urban_night_penno_big_loop_data/50khz_car_urban_night_penno_big_loop_data.npy
+- dataset_path: data/car_urban_night_penno_big_loop/car_urban_night_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_night_penno_big_loop/50khz_car_urban_night_penno_big_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_ucity_small_loop_data/car_urban_night_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_night_ucity_small_loop_data/50khz_car_urban_night_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_night_ucity_small_loop/car_urban_night_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_night_ucity_small_loop/50khz_car_urban_night_ucity_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_ucity_big_loop_data/car_urban_night_ucity_big_loop_data.h5
-  timestamps_path: data/car_urban_night_ucity_big_loop_data/50khz_car_urban_night_ucity_big_loop_data.npy
+- dataset_path: data/car_urban_night_ucity_big_loop/car_urban_night_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_night_ucity_big_loop/50khz_car_urban_night_ucity_big_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_city_hall_data/car_urban_night_city_hall_data.h5
-  timestamps_path: data/car_urban_night_city_hall_data/50khz_car_urban_night_city_hall_data.npy
+- dataset_path: data/car_urban_night_city_hall/car_urban_night_city_hall_data.h5
+  timestamps_path: data/car_urban_night_city_hall/50khz_car_urban_night_city_hall_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_rittenhouse_data/car_urban_night_rittenhouse_data.h5
-  timestamps_path: data/car_urban_night_rittenhouse_data/50khz_car_urban_night_rittenhouse_data.npy
+- dataset_path: data/car_urban_night_rittenhouse/car_urban_night_rittenhouse_data.h5
+  timestamps_path: data/car_urban_night_rittenhouse/50khz_car_urban_night_rittenhouse_data.npy
   camera: left
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_penno_small_loop_data/car_urban_night_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_night_penno_small_loop_data/50khz_car_urban_night_penno_small_loop_data.npy
+- dataset_path: data/car_urban_night_penno_small_loop/car_urban_night_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_night_penno_small_loop/50khz_car_urban_night_penno_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_penno_small_loop_darker_data/car_urban_night_penno_small_loop_darker_data.h5
-  timestamps_path: data/car_urban_night_penno_small_loop_darker_data/50khz_car_urban_night_penno_small_loop_darker_data.npy
+- dataset_path: data/car_urban_night_penno_small_loop_darker/car_urban_night_penno_small_loop_darker_data.h5
+  timestamps_path: data/car_urban_night_penno_small_loop_darker/50khz_car_urban_night_penno_small_loop_darker_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_penno_big_loop_data/car_urban_night_penno_big_loop_data.h5
-  timestamps_path: data/car_urban_night_penno_big_loop_data/50khz_car_urban_night_penno_big_loop_data.npy
+- dataset_path: data/car_urban_night_penno_big_loop/car_urban_night_penno_big_loop_data.h5
+  timestamps_path: data/car_urban_night_penno_big_loop/50khz_car_urban_night_penno_big_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_ucity_small_loop_data/car_urban_night_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_night_ucity_small_loop_data/50khz_car_urban_night_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_night_ucity_small_loop/car_urban_night_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_night_ucity_small_loop/50khz_car_urban_night_ucity_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 0.5]
 
-- dataset_path: data/car_urban_night_ucity_big_loop_data/car_urban_night_ucity_big_loop_data.h5
-  timestamps_path: data/car_urban_night_ucity_big_loop_data/50khz_car_urban_night_ucity_big_loop_data.npy
+- dataset_path: data/car_urban_night_ucity_big_loop/car_urban_night_ucity_big_loop_data.h5
+  timestamps_path: data/car_urban_night_ucity_big_loop/50khz_car_urban_night_ucity_big_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_city_hall_data/car_urban_night_city_hall_data.h5
-  timestamps_path: data/car_urban_night_city_hall_data/50khz_car_urban_night_city_hall_data.npy
+- dataset_path: data/car_urban_night_city_hall/car_urban_night_city_hall_data.h5
+  timestamps_path: data/car_urban_night_city_hall/50khz_car_urban_night_city_hall_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
 
-- dataset_path: data/car_urban_night_rittenhouse_data/car_urban_night_rittenhouse_data.h5
-  timestamps_path: data/car_urban_night_rittenhouse_data/50khz_car_urban_night_rittenhouse_data.npy
+- dataset_path: data/car_urban_night_rittenhouse/car_urban_night_rittenhouse_data.h5
+  timestamps_path: data/car_urban_night_rittenhouse/50khz_car_urban_night_rittenhouse_data.npy
   camera: right
   dtype: m3ed
   range: [0, 5, 1]
