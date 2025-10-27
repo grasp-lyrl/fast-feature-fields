@@ -273,16 +273,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print("Configuration:")
-    print(f"  H5 file: {args.h5_file}")
-    print(f"  Start time: {args.time_ms} ms")
-    print(f"  F3 PT2 path: {args.f3_pt2_path}")
-    print(f"  DAV2 PT2 path: {args.dav2_pt2_path if args.dav2_pt2_path else 'None'}")
-    print(f"  FlowHead PT2 path: {args.flowhead_pt2_path if args.flowhead_pt2_path else 'None'}")
-    print(f"  DAV2 input shape: {args.dav2_height}x{args.dav2_width}")
-    print(f"  FlowHead input shape: {args.flow_height}x{args.flow_width}")
-    print(f"  Warmup runs: {args.warmup_runs}")
-    print(f"  Timed runs: {args.runs}")
+    print("⚙️ Configuration:")
+    print(f"    H5 file: {args.h5_file}")
+    print(f"    Start time: {args.time_ms} ms")
+    print(f"    F3 PT2 path: {args.f3_pt2_path}")
+    print(f"    DAV2 PT2 path: {args.dav2_pt2_path if args.dav2_pt2_path else 'None'}")
+    print(f"    FlowHead PT2 path: {args.flowhead_pt2_path if args.flowhead_pt2_path else 'None'}")
+    print(f"    DAV2 input shape: {args.dav2_height}x{args.dav2_width}")
+    print(f"    FlowHead input shape: {args.flow_height}x{args.flow_width}")
+    print(f"    Warmup runs: {args.warmup_runs}")
+    print(f"    Timed runs: {args.runs}")
     print()
 
     compile_engine_and_infer(
