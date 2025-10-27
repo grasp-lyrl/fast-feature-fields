@@ -138,7 +138,30 @@ class SIREN_Scheduler(_LRScheduler):
             ]
             return decay_lr
 
-            
+
+class PixelShuffleUpsample(nn.Module):
+    """ PixelShuffle Upsampling layer.
+
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        upscale_factor (int): Upscaling factor. Default: 2.
+    
+    Returns:
+        torch.Tensor: Upsampled tensor.
+    """
+    def __init__(self, in_channels, out_channels, upscale_factor=2, kernel_size=3):
+        super(PixelShuffleUpsample, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels * (upscale_factor ** 2),
+                              kernel_size=kernel_size, padding=(kernel_size - 1) // 2)
+        self.pixel_shuffle = nn.PixelShuffle(upscale_factor)
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.pixel_shuffle(x)
+        return x
+
+
 class LayerNorm(nn.Module):
     """ LayerNorm that supports two data formats: channels_last (default) or channels_first. 
     The ordering of the dimensions in the inputs. channels_last corresponds to inputs with 

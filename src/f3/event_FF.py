@@ -6,9 +6,9 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 
-from f3.utils import (MLP, SIREN, MultiResolutionHashEncoder, DotProd,
-                          LayerNorm, Block, SparseLayerNorm, SparseBlock, EV2VoxelGrid,
-                          UNetDoubleConv, UNetDown, UNetUp) #, CudaTimer
+from f3.utils import (MLP, SIREN, MultiResolutionHashEncoder, DotProd, PixelShuffleUpsample,
+                      LayerNorm, Block, SparseLayerNorm, SparseBlock, EV2VoxelGrid,
+                      UNetDoubleConv, UNetDown, UNetUp) #, CudaTimer
 from f3.utils import num_params, LOSSES, to_dense, calculate_receptive_field
 
 try:
@@ -339,39 +339,33 @@ class EventPatchFF(nn.Module):
             ]))
 
         if use_upsampling:
-            self.upsample_stages = nn.ModuleList()
+            self.upsample_layers = nn.ModuleList()
+            self.upsample_process = nn.ModuleList()
+
             for i in range(self._nstages - 1, 0, -1):
                 # Upsample from dims[i] to dims[i-1], then concatenate with skip (dims[i-1])
                 # Result will be 2*dims[i-1] channels after concatenation
-                upsample_stage = nn.Sequential(
-                    nn.ConvTranspose2d(dims[i], dims[i-1], kernel_size=dsstrides[i], stride=dsstrides[i]),
+                self.upsample_layers.append(
+                    PixelShuffleUpsample(dims[i], dims[i-1], upscale_factor=dsstrides[i])
+                )
+                self.upsample_process.append(nn.Sequential(
                     nn.GELU(),
                     nn.Conv2d(2*dims[i-1], dims[i-1], kernel_size=1),
                     LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
                     nn.GELU(),
                     nn.Conv2d(dims[i-1], dims[i-1], kernel_size=3, padding=1, groups=dims[i-1]), # Depthwise conv
                     LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
-                )
-                self.upsample_stages.append(upsample_stage)
+                ))
 
-            self.upsample_stages.append(
-                nn.ConvTranspose2d(
+            self.upsample_layers.append(
+                PixelShuffleUpsample(
                     dims[0],
                     upsampling_dims,
-                    kernel_size=dsstrides[0] // self.patch_size,
-                    stride=dsstrides[0] // self.patch_size
+                    upscale_factor=dsstrides[0] // self.patch_size
                 )
             )
 
-            self.downsample_to_patchsize = nn.Conv2d(
-                in_channels,
-                upsampling_dims,
-                kernel_size=self.patch_size,
-                stride=self.patch_size,
-                padding=(self.patch_size - 1) // 2
-            )
-
-            self.outconv = nn.Sequential(
+            self.upsample_process.append(nn.Sequential(
                 nn.GELU(),
                 nn.Conv2d(2*upsampling_dims, upsampling_dims, kernel_size=1),
                 LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
@@ -384,6 +378,14 @@ class EventPatchFF(nn.Module):
                     groups=upsampling_dims
                 ),
                 LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+            ))
+
+            self.downsample_hash_to_patchsize = nn.Conv2d(
+                in_channels,
+                upsampling_dims,
+                kernel_size=self.patch_size,
+                stride=self.patch_size,
+                padding=(self.patch_size - 1) // 2
             )
 
         if use_decoder_block:
@@ -461,9 +463,10 @@ class EventPatchFF(nn.Module):
             dims=conf["dims"], convkernels=conf["convkernels"], convdepths=conf["convdepths"],
             convbtlncks=conf["convbtlncks"], convdilations=conf["convdilations"],
             dskernels=conf["dskernels"], dsstrides=conf["dsstrides"], patch_size=conf["patch_size"],
-            use_upsampling=conf.get("use_upsampling", False), upsampling_dims=conf.get("upsampling_dims", [128, 32]),
-            return_logits=return_logits, return_loss=return_loss, return_feat=return_feat,
-            loss_fn=loss_fn, device=conf.get("device", "cuda"), variable_mode=conf.get("variable_mode", True),
+            use_decoder_block=conf.get("use_decoder_block", False), use_upsampling=conf.get("use_upsampling", False),
+            upsampling_dims=conf.get("upsampling_dims", [128, 32]), return_logits=return_logits,
+            return_loss=return_loss, return_feat=return_feat, loss_fn=loss_fn,
+            device=conf.get("device", "cuda"), variable_mode=conf.get("variable_mode", True),
         )
 
     def save_config(self, path: str):
@@ -543,17 +546,16 @@ class EventPatchFF(nn.Module):
                 skip_connections.append(x)
 
         if self.use_upsampling:
-            for i, upsample_stage in enumerate(self.upsample_stages[:-1]):
+            for i in range(len(self.upsample_layers) - 1):
                 skip = skip_connections[-(i+1)]  # Get skip connections in reverse order
-                x = upsample_stage[0](x)  # TransposeConv2d
-                x = torch.cat([skip, x], dim=1)
-                for layer in upsample_stage[1:]:
-                    x = layer(x)
+                x = self.upsample_layers[i](x)   # Upsample
+                x = torch.cat([skip, x], dim=1)  # Concatenate with skip connection
+                x = self.upsample_process[i](x)  # Process concatenated features
 
-            x = self.upsample_stages[-1](x)  # Final upsample stage
-            downsampled_hash = self.downsample_to_patchsize(skip_connections[0]) # (B, C, W/ps, H/ps)
+            x = self.upsample_layers[-1](x)
+            downsampled_hash = self.downsample_hash_to_patchsize(skip_connections[0]) # (B, C, W/ps, H/ps)
             x = torch.cat([x, downsampled_hash], dim=1)  # Concatenate along channel dimension
-            x = self.outconv(x)
+            x = self.upsample_process[-1](x)
 
         if self.return_feat:
             feat = x.permute(0, 2, 3, 1)
