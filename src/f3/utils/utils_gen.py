@@ -87,7 +87,8 @@ def batch_cropper_and_resizer_events(
     counts: torch.Tensor,
     cparams: torch.Tensor,
     in_resolution: tuple[int, int, int],
-    out_resolution: tuple[int, int, int]=None
+    out_resolution: tuple[int, int, int]=None,
+    stochastic_rounding: bool=False
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """
     Crop and resize a batch of events using the provided crop parameters.
@@ -103,6 +104,8 @@ def batch_cropper_and_resizer_events(
         in_resolution: Input resolution (W, H, T)
         out_resolution: Output resolution (W, H, T). If None, no resizing/deduplication is performed.
         cparams: Crop parameters [B, 4]
+        stochastic_rounding: If True, use probability-weighted stochastic rounding instead of 
+                           deterministic rounding. Default: False.
 
         events format: [x, y, t]. They are normalized by resolution.
 
@@ -139,8 +142,27 @@ def batch_cropper_and_resizer_events(
     )
 
     if out_resolution is not None:
-        x_resized = (x_resized * out_resolution[0]).round().int().clamp(0, out_resolution[0]-1)
-        y_resized = (y_resized * out_resolution[1]).round().int().clamp(0, out_resolution[1]-1)
+        if stochastic_rounding:
+            # Stochastic rounding: round up with probability equal to fractional part
+            x_scaled = x_resized * out_resolution[0]
+            y_scaled = y_resized * out_resolution[1]
+
+            x_floor = torch.floor(x_scaled)
+            y_floor = torch.floor(y_scaled)
+
+            x_frac = x_scaled - x_floor
+            y_frac = y_scaled - y_floor
+
+            x_rand = torch.rand_like(x_scaled)
+            y_rand = torch.rand_like(y_scaled)
+
+            x_resized = (x_floor.int() + (x_rand < x_frac)).clamp(0, out_resolution[0]-1)
+            y_resized = (y_floor.int() + (y_rand < y_frac)).clamp(0, out_resolution[1]-1)
+        else:
+            # Deterministic rounding
+            x_resized = (x_resized * out_resolution[0]).round().int().clamp(0, out_resolution[0]-1)
+            y_resized = (y_resized * out_resolution[1]).round().int().clamp(0, out_resolution[1]-1)
+
         t_resized = t[crop_mask]
 
         # Create unique key combining x, y, and t
@@ -302,6 +324,7 @@ def get_crop_targets(args):
     crop_resize_training = args.random_crop_resize
     crop_size = crop_resize_training['crop']
     resize_size = crop_resize_training.get('resize', None)
+    stochastic_rounding = crop_resize_training.get('stochastic_rounding', False)
 
     ctx_out_resolution, pred_out_resolution = None, None
     if resize_size is not None:
@@ -311,11 +334,22 @@ def get_crop_targets(args):
     else:
         pred_frame_size = crop_size + [args.time_pred // args.bucket]
 
-    return crop_size, ctx_out_resolution, pred_out_resolution, pred_frame_size
+    return crop_size, stochastic_rounding, ctx_out_resolution, pred_out_resolution, pred_frame_size
 
 
-def crop_and_resize_targets(args, crop_size, ff_events, pred_events, ff_counts, pred_counts,
-                            valid_mask, ctx_out_resolution, pred_out_resolution, pred_frame_size):
+def crop_and_resize_targets(
+        args,
+        crop_size,
+        stochastic_rounding,
+        ff_events,
+        pred_events,
+        ff_counts,
+        pred_counts,
+        valid_mask,
+        ctx_out_resolution,
+        pred_out_resolution,
+        pred_frame_size
+    ):
     # Crop and resize events
     cparams = get_random_crop_params(
         args.frame_sizes, crop_size[:2], batch_size=ff_counts.shape[0]
@@ -326,7 +360,8 @@ def crop_and_resize_targets(args, crop_size, ff_events, pred_events, ff_counts, 
         ff_counts,
         cparams,
         in_resolution=args.frame_sizes + [args.time_ctx // args.bucket],
-        out_resolution=ctx_out_resolution
+        out_resolution=ctx_out_resolution,
+        stochastic_rounding=stochastic_rounding
     )
 
     pred_events, pred_counts = batch_cropper_and_resizer_events(
@@ -334,7 +369,8 @@ def crop_and_resize_targets(args, crop_size, ff_events, pred_events, ff_counts, 
         pred_counts,
         cparams,
         in_resolution=args.frame_sizes + [args.time_pred // args.bucket],
-        out_resolution=pred_out_resolution
+        out_resolution=pred_out_resolution,
+        stochastic_rounding=stochastic_rounding
     )
 
     valid_mask = torch.ones(ff_counts.shape[0], *pred_frame_size[:2], dtype=torch.bool, device=ff_events.device)
