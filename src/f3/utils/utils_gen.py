@@ -82,6 +82,31 @@ def batch_cropper(images, cparams):
     ])
 
 
+def batch_cropper_and_resizer_images(
+    images: torch.Tensor,
+    cparams: torch.Tensor,
+    out_resolution: tuple[int, int]=None,
+) -> torch.Tensor:
+    """
+    Crop and resize a batch of images using the provided crop parameters.
+
+    Parameters:
+        images: Batch of images [B, C, W, H]
+        cparams: Crop parameters [B, 4]
+        out_resolution: Output resolution (W, H). If None, no resizing is performed.
+    Returns:
+        Cropped images [B, C, W', H']
+    """
+    cropped_images = batch_cropper(images, cparams)
+    if out_resolution is not None:
+        cropped_images = torch.nn.functional.interpolate(
+            cropped_images,
+            size=out_resolution[:2],
+            mode='nearest'
+        )
+    return cropped_images
+
+
 def batch_cropper_and_resizer_events(
     events: torch.Tensor,
     counts: torch.Tensor,
@@ -319,22 +344,30 @@ def log_dict(logger, dict):
 
 
 # Helper functions for training and validation cropping and resizing
-def get_crop_targets(args):
+def get_crop_targets(args, pred=True):
     # Initialization for cropping and resizing
     crop_resize_training = args.random_crop_resize
     crop_size = crop_resize_training['crop']
     resize_size = crop_resize_training.get('resize', None)
     stochastic_rounding = crop_resize_training.get('stochastic_rounding', False)
 
-    ctx_out_resolution, pred_out_resolution = None, None
-    if resize_size is not None:
-        pred_frame_size = resize_size + [args.time_pred // args.bucket]
-        ctx_out_resolution = resize_size + [args.time_ctx // args.bucket]
-        pred_out_resolution = resize_size + [args.time_pred // args.bucket]
-    else:
-        pred_frame_size = crop_size + [args.time_pred // args.bucket]
+    if pred:
+        ctx_out_resolution, pred_out_resolution = None, None
+        if resize_size is not None:
+            pred_frame_size = resize_size + [args.time_pred // args.bucket]
+            ctx_out_resolution = resize_size + [args.time_ctx // args.bucket]
+            pred_out_resolution = resize_size + [args.time_pred // args.bucket]
+        else:
+            pred_frame_size = crop_size + [args.time_pred // args.bucket]
 
-    return crop_size, stochastic_rounding, ctx_out_resolution, pred_out_resolution, pred_frame_size
+        return crop_size, stochastic_rounding, ctx_out_resolution, pred_out_resolution, pred_frame_size
+    else:
+        frame_sizes = crop_size
+        ctx_out_resolution = None
+        if resize_size is not None:
+            frame_sizes = resize_size
+            ctx_out_resolution = resize_size + [args.time_ctx // args.bucket]
+        return crop_size, stochastic_rounding, ctx_out_resolution, frame_sizes
 
 
 def crop_and_resize_targets(
@@ -377,3 +410,43 @@ def crop_and_resize_targets(
     # We should do interpolate nearest ideally. No need for now.
 
     return ff_events, pred_events, ff_counts, pred_counts, valid_mask
+
+
+def crop_and_resize_events_and_disparity(
+        args,
+        crop_size,
+        stochastic_rounding,
+        ff_events,
+        event_counts,
+        disparity,
+        src_ofst_res,
+        ctx_out_resolution
+    ):
+    # Crop and resize events
+    crop_resize_params = get_random_crop_params(
+        args.frame_sizes, crop_size[:2], batch_size=event_counts.shape[0],
+    ).to(ff_events.device)
+
+    ff_events, event_counts = batch_cropper_and_resizer_events(
+        ff_events,
+        event_counts,
+        crop_resize_params,
+        in_resolution=args.frame_sizes[:2] + [args.time_ctx // args.bucket],
+        out_resolution=ctx_out_resolution,
+        stochastic_rounding=stochastic_rounding
+    )
+
+    disparity = batch_cropper_and_resizer_images(
+        disparity.permute(0, 2, 1).unsqueeze(1),  # (B,1,W,H)
+        crop_resize_params,
+        out_resolution=ctx_out_resolution,
+    ).squeeze(1).permute(0, 2, 1)  # (B,H,W) #! Sorry for the permute dance
+
+    #! We do not support cropping src_ofst_res yet for crop_and_resize. We just reset the offsets.
+    src_ofst_res[:, :2] = 0
+    if ctx_out_resolution is not None:
+        src_ofst_res[:, 2:] = torch.tensor(ctx_out_resolution[:2][::-1])
+    else:
+        src_ofst_res[:, 2:] = torch.tensor(crop_size[:2][::-1])
+
+    return ff_events, event_counts, disparity, src_ofst_res

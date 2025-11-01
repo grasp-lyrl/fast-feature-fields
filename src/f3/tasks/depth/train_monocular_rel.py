@@ -48,14 +48,17 @@ def main():
     if args.baseline:
         model = EventDepthAnythingV2(args.dav2_config, args.eventmodel,
                                      *args.frame_sizes, args.time_ctx // args.bucket)
+        model_uncompiled = model  # Keep reference to non-compiled model
         if args.compile:
-            model = torch.compile(model, fullgraph=False)
+            model.dav2 = torch.compile(model, fullgraph=False)
     else:
         model = EventFFDepthAnythingV2(args.eventff["config"], args.dav2_config)
+        model_uncompiled = model  # Keep reference to non-compiled model
         if not args.compile:
             model.eventff = torch.compile(model.eventff, fullgraph=False)
         else:
-            model = torch.compile(model, fullgraph=False)
+            model.eventff = torch.compile(model.eventff, fullgraph=False)
+            model.dav2 = torch.compile(model.dav2)
         model.load_weights(args.eventff["ckpt"])
     model.save_configs(models_path)
 
@@ -136,6 +139,8 @@ def main():
                     "scheduler": scheduler.state_dict()
                 }
                 torch.save(best_dict, f"{models_path}/best.pth")
+                if args.compile:
+                    torch.save(model_uncompiled.state_dict(), f"{models_path}/best_uncompiled.pth")
                 logger.info(f"Saving best model at epoch: {epoch},")
                 log_dict(logger, best_results)
             if better_2pe:
@@ -147,6 +152,8 @@ def main():
                     "scheduler": scheduler.state_dict()
                 }
                 torch.save(best_2pe_dict, f"{models_path}/best_2pe.pth")
+                if args.compile:
+                    torch.save(model_uncompiled.state_dict(), f"{models_path}/best_2pe_uncompiled.pth")
                 logger.info(f"Saving best 2pe model at epoch: {epoch},")
                 log_dict(logger, best_results)
                 
@@ -159,6 +166,8 @@ def main():
             "scheduler": scheduler.state_dict()
         }
         torch.save(last_dict, f"{models_path}/last.pth")
+        if args.compile:
+            torch.save(model_uncompiled.state_dict(), f"{models_path}/last_uncompiled.pth")
 
         # For long runs we want intermediate checkpoints
         if (epoch+1) % args.log_interval == 0:
