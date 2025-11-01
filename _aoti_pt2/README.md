@@ -10,15 +10,28 @@ This directory contains scripts to export F<sup>3</sup> (Fast Feature Fields), D
 
 
 ## Table of Contents
-- [Overview](#overview)
-- [Prerequisites](#prerequisites)
-- [Model Export](#model-export)
-  - [Export F3 Model](#export-f3-model)
-  - [Export DepthAnythingV2 Model](#export-depthanythingv2-model)
-  - [Export FlowHead Model](#export-flowhead-model)
-- [Python Inference](#python-inference)
-- [C++ Inference](#c-inference)
-- [File Structure](#file-structure)
+- [AOTI PT2 Model Export and Inference](#aoti-pt2-model-export-and-inference)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Prerequisites](#prerequisites)
+    - [Python Environment](#python-environment)
+    - [C++ Environment](#c-environment)
+  - [Model Export](#model-export)
+    - [Export F3 Model](#export-f3-model)
+    - [Export DepthAnythingV2 Model](#export-depthanythingv2-model)
+    - [Export FlowHead Model](#export-flowhead-model)
+  - [Python Inference](#python-inference)
+    - [Run F3 Only](#run-f3-only)
+    - [Run Full Pipeline (F3 + Depth + Flow)](#run-full-pipeline-f3--depth--flow)
+  - [C++ Inference](#c-inference)
+    - [Build the C++ Test Executable](#build-the-c-test-executable)
+    - [Run F3 Only](#run-f3-only-1)
+    - [Run Full Pipeline (F3 + Depth + Flow)](#run-full-pipeline-f3--depth--flow-1)
+  - [File Structure](#file-structure)
+  - [Performance Notes](#performance-notes)
+    - [Optimization Tips](#optimization-tips)
+    - [Inference Speed Benchmarks](#inference-speed-benchmarks)
+  - [Citation](#citation)
 
 ---
 
@@ -226,6 +239,16 @@ mkdir -p build
 cd build
 cmake ..
 cmake --build . --config Release
+```
+
+OR if you prefer using Ninja:
+
+```bash
+cd _cpp_src
+mkdir -p build
+cd build
+cmake .. -G Ninja
+ninja
 ```
 
 This will create the `test_exported_pt2` executable.

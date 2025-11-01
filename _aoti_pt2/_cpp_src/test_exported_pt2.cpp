@@ -42,6 +42,8 @@ void print_usage(const char *program_name) {
          "(default: 200)\n"
       << "  --warmup_runs N             Number of warmup runs before timing "
          "(default: 20)\n"
+      << "  --n_events N                Number of input events (default: "
+         "200000)\n"
       << "  --dav2_height H             Target height for DAV2 input (default: "
          "238)\n"
       << "  --dav2_width W              Target width for DAV2 input (default: "
@@ -73,6 +75,8 @@ bool parse_args(int argc, char *argv[], Config &config) {
       config.runs = std::stoi(argv[++i]);
     } else if (arg == "--warmup_runs" && i + 1 < argc) {
       config.warmup_runs = std::stoi(argv[++i]);
+    } else if (arg == "--n_events" && i + 1 < argc) {
+      config.n_events = std::stoi(argv[++i]);
     } else if (arg == "--dav2_height" && i + 1 < argc) {
       config.dav2_height = std::stoi(argv[++i]);
     } else if (arg == "--dav2_width" && i + 1 < argc) {
@@ -107,6 +111,7 @@ void print_config(const Config &config) {
             << (config.flowhead_pt2_path.empty() ? "None"
                                                  : config.flowhead_pt2_path)
             << std::endl;
+  std::cout << "    Number of events: " << config.n_events << std::endl;
   std::cout << "    DAV2 input shape: " << config.dav2_height << "x"
             << config.dav2_width << std::endl;
   std::cout << "    FlowHead input shape: " << config.flow_height << "x"
@@ -125,7 +130,7 @@ torch::Tensor generate_random_events(int32_t n_events) {
 }
 
 int main(int argc, char *argv[]) {
-  c10::InferenceMode mode;
+  c10::InferenceMode guard;
 
   Config config;
 
