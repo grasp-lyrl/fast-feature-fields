@@ -1,3 +1,4 @@
+import h5py
 import random
 import string
 import numpy as np
@@ -450,3 +451,31 @@ def crop_and_resize_events_and_disparity(
         src_ofst_res[:, 2:] = torch.tensor(crop_size[:2][::-1])
 
     return ff_events, event_counts, disparity, src_ofst_res
+
+
+class H5WithLazyDivision:
+    """
+    A class that lazily applies integer division when accessed.
+
+    Note: Chunk Iterator won't work with this class, so use only for
+          datasets where you don't need chunk iteration.
+    
+    Args:
+        dataset: h5py.Dataset object
+        divisor: Integer to divide by
+    """
+
+    def __init__(self, dataset, divisor):
+        if not isinstance(divisor, (int)):
+            raise ValueError("Divisor must be an integer!")
+        self._dataset = dataset
+        self.divisor = divisor
+
+    def __getitem__(self, key):
+        """Apply division when accessing data."""
+        data = self._dataset[key]
+        return data // self.divisor
+
+    def __getattr__(self, name):
+        """Delegate all other attributes to the wrapped dataset."""
+        return getattr(self._dataset, name)

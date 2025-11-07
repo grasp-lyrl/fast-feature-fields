@@ -61,4 +61,6 @@ bash scripts/setup_mvsec.sh /path/to/MVSEC/
 
 #### TODO
 
-- [ ] Remove the need for `.npy` files. These have remained to support finer time discretization of events than 1 ms.
+- [ ] timestamps 50KHz file requirements have been removed. Update instructions accordingly.
+
+- [ ] Add instructions for downloading tartanairv2 dataset.

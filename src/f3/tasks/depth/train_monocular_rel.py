@@ -20,6 +20,7 @@ parser.add_argument("--compile", action="store_true", help="Torch compile both t
 parser.add_argument("--baseline", action="store_true", help="Use the baseline model.")
 parser.add_argument("--amp", action="store_true", help="Use AMP for training.")
 parser.add_argument("--init", type=str, default=None, help="Path to the initial weights for the model.")
+parser.add_argument("--retrain_f3", action="store_true", help="Whether to retrain f3 backbone for the depth task.")
 
 
 args = parser.parse_args()
@@ -52,12 +53,10 @@ def main():
         if args.compile:
             model.dav2 = torch.compile(model, fullgraph=False)
     else:
-        model = EventFFDepthAnythingV2(args.eventff["config"], args.dav2_config)
+        model = EventFFDepthAnythingV2(args.eventff["config"], args.dav2_config, args.retrain_f3)
         model_uncompiled = model  # Keep reference to non-compiled model
-        if not args.compile:
-            model.eventff = torch.compile(model.eventff, fullgraph=False)
-        else:
-            model.eventff = torch.compile(model.eventff, fullgraph=False)
+        model.eventff = torch.compile(model.eventff, fullgraph=False)
+        if args.compile:
             model.dav2 = torch.compile(model.dav2)
         model.load_weights(args.eventff["ckpt"])
     model.save_configs(models_path)
@@ -88,6 +87,8 @@ def main():
                 param_groups.append({'params': param, 'lr': args.lr, 'weight_decay': 0.0})
             else:
                 param_groups.append({'params': param, 'lr': args.lr})
+        elif 'eventff' in name:
+            param_groups.append({'params': param, 'lr': 0.5 * args.lr})
         else:
             param_groups.append({'params': param, 'lr': 10 * args.lr})
     optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.999), weight_decay=0.01)
