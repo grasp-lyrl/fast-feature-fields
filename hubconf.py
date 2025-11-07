@@ -11,6 +11,7 @@ import yaml
 import logging
 from copy import copy
 from pathlib import Path
+from typing import Optional
 
 import torch
 import torch._dynamo
@@ -47,6 +48,29 @@ def calculate_receptive_field(layers):
         product *= stride
         receptive_field += (kernel_size - 1) * dilation * product
     return receptive_field
+
+
+class PixelShuffleUpsample(nn.Module):
+    """ PixelShuffle Upsampling layer.
+
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        upscale_factor (int): Upscaling factor. Default: 2.
+    
+    Returns:
+        torch.Tensor: Upsampled tensor.
+    """
+    def __init__(self, in_channels, out_channels, upscale_factor=2, kernel_size=3):
+        super(PixelShuffleUpsample, self).__init__()
+        self.conv = nn.Conv2d(in_channels, out_channels * (upscale_factor ** 2),
+                              kernel_size=kernel_size, padding=(kernel_size - 1) // 2)
+        self.pixel_shuffle = nn.PixelShuffle(upscale_factor)
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = self.pixel_shuffle(x)
+        return x
 
 
 class LayerNorm(nn.Module):
@@ -360,10 +384,14 @@ class EventPatchFF(nn.Module):
                  dskernels: list[int]=[5, 5], # Downsample kernel size
                  dsstrides: list[int]=[2, 2], # Downsample stride
                  patch_size=16,
-                 use_decoder_block: bool=True,
+                 use_decoder_block: bool=False, # Whether to use decoder block or not
+                 use_upsampling: bool=False, # Whether to use bilinear upsample or not
+                 upsampling_dims: int=32, # Output conv hidden dimensions
                  return_logits: bool=False, # Whether to return the logits or not
                  return_feat: bool=False, # Whether to return the key intermediate features or not
                  variable_mode: bool=True, # Whether to use variable mode or not
+                 single_batch_mode: bool=False, # Whether to use single batch mode or not. Important for torch/onnx/trt compilation
+                 run_downsampled: Optional[tuple[int,int]]=None, # If set, will run inference at this downsampled resolution
                  device: str="cuda",
                 ):
         super().__init__()
@@ -371,8 +399,9 @@ class EventPatchFF(nn.Module):
                "Length of dims, convkernels, and convdepths should be the same."
         self._nstages = len(dims) 
 
+        self.device = device
         self.frame_sizes = frame_sizes
-        self.w, self.h = frame_sizes[:2]
+        self.w, self.h, self.t = frame_sizes
 
         self.T = T
         self.dims = dims
@@ -382,19 +411,33 @@ class EventPatchFF(nn.Module):
         self.convdilations = convdilations
         self.dskernels = dskernels
         self.dsstrides = dsstrides
+
+        self.use_upsampling = use_upsampling
+        self.upsampling_dims = upsampling_dims
+
         self.patch_size = patch_size
         self.multi_hash_encoder_args = copy(multi_hash_encoder)
-        self.feature_size = dims[-1]
+        self.feature_size = dims[-1] if not use_upsampling else upsampling_dims
 
         self.use_decoder_block = use_decoder_block
         self.variable_mode = variable_mode
         self.return_logits = return_logits
         self.return_feat = return_feat
 
+        #! Single batch mode is for inference with variable mode where we process one batch of events at a time
+        #! This is to enable full graph compilation with torch.compile and AOTInductor. Variable sized events
+        #! with variable number of event batches is hard to support with full graph compilation. So for now, this
+        #! is the way.
+        self.single_batch_mode = single_batch_mode
+
+        # (Example: Events are from 640x480, but we want 320x240 features for faster inference)
+        # If set, will downsample the hashed features to this resolution before the rest of the network
+        self.run_downsampled = run_downsampled
+
         self.downsample = torch.prod(torch.tensor(dsstrides, device='cpu')).item()
         self.padding = (self.patch_size - 1) // 2
 
-        assert self.downsample == self.patch_size, "Downsample should be equal to the patch size."
+        assert self.use_upsampling or (self.downsample == self.patch_size), "Downsample should be equal to the patch size."
         
         # Move the multi_hash_encoder args to the device
         multi_hash_encoder["finest_resolution"] = torch.tensor(
@@ -422,7 +465,7 @@ class EventPatchFF(nn.Module):
         # Multi-resolution hash encoder for the feature field generating events.
         logger.info("Instantiating Multi-resolution Hash Encoder with the following resolutions: "+\
                          f"{torch.Tensor(frame_sizes[:3]) / multi_hash_encoder['resolutions'][:, :3].cpu()}")
-        self.multi_hash_encoder = MultiResolutionHashEncoder(compile=compile, **multi_hash_encoder)
+        self.multi_hash_encoder = MultiResolutionHashEncoder(compile=True, **multi_hash_encoder)
 
         in_channels = multi_hash_encoder["feature_size"] * multi_hash_encoder["levels"]
 
@@ -451,9 +494,67 @@ class EventPatchFF(nn.Module):
                 for _ in range(convdepths[i])
             ]))
 
-        if self.use_decoder_block:
-            self.decoder = Block(dim=dims[-1], kernel_size=7)
-        self.pred = nn.Conv2d(dims[-1], patch_size**2 * T, kernel_size=1)
+        if use_upsampling:
+            self.upsample_layers = nn.ModuleList()
+            self.upsample_process = nn.ModuleList()
+
+            for i in range(self._nstages - 1, 0, -1):
+                # Upsample from dims[i] to dims[i-1], then concatenate with skip (dims[i-1])
+                # Result will be 2*dims[i-1] channels after concatenation
+                self.upsample_layers.append(
+                    PixelShuffleUpsample(dims[i], dims[i-1], upscale_factor=dsstrides[i])
+                )
+                self.upsample_process.append(nn.Sequential(
+                    nn.GELU(),
+                    nn.Conv2d(2*dims[i-1], dims[i-1], kernel_size=1),
+                    LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
+                    nn.GELU(),
+                    nn.Conv2d(dims[i-1], dims[i-1], kernel_size=3, padding=1, groups=dims[i-1]), # Depthwise conv
+                    LayerNorm(dims[i-1], eps=1e-6, data_format="channels_first"),
+                ))
+
+            self.upsample_layers.append(
+                PixelShuffleUpsample(
+                    dims[0],
+                    upsampling_dims,
+                    upscale_factor=dsstrides[0] // self.patch_size
+                )
+            )
+
+            self.upsample_process.append(nn.Sequential(
+                nn.GELU(),
+                nn.Conv2d(2*upsampling_dims, upsampling_dims, kernel_size=1),
+                LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+                nn.GELU(),
+                nn.Conv2d(
+                    upsampling_dims,
+                    upsampling_dims,
+                    kernel_size=3,
+                    padding=1,
+                    groups=upsampling_dims
+                ),
+                LayerNorm(upsampling_dims, eps=1e-6, data_format="channels_first"),
+            ))
+
+            self.downsample_hash_to_patchsize = nn.Conv2d(
+                in_channels,
+                upsampling_dims,
+                kernel_size=self.patch_size,
+                stride=self.patch_size,
+                padding=(self.patch_size - 1) // 2
+            )
+
+        if use_decoder_block:
+            self.decoder = Block(
+                dim=dims[-1] if not use_upsampling else upsampling_dims,
+                kernel_size=7
+            )
+
+        self.pred = nn.Conv2d(
+            dims[-1] if not use_upsampling else upsampling_dims,
+            patch_size**2 * T,
+            kernel_size=1
+        )
 
         self.apply(self._init_weights)
         
@@ -495,8 +596,8 @@ class EventPatchFF(nn.Module):
     
     def unpatchify(self, x):
         """
-            x: (N, patch_size**2 * T, W/downsample, H/downsample)
-            imgs: (N, W*downsample, H*downsample, T)
+            x: (N, patch_size**2 * T, W/patch_size, H/patch_size)
+            imgs: (N, W*patch_size, H*patch_size, T)
         """
         if self.patch_size == 1:
             return x.permute(0, 2, 3, 1)
@@ -519,9 +620,27 @@ class EventPatchFF(nn.Module):
             convbtlncks=conf["convbtlncks"], convdilations=conf["convdilations"],
             dskernels=conf["dskernels"], dsstrides=conf["dsstrides"],
             patch_size=conf["patch_size"], use_decoder_block=conf["use_decoder_block"],
+            use_upsampling=conf.get("use_upsampling", False), upsampling_dims=conf.get("upsampling_dims", [128, 32]),
             return_logits=return_logits, return_feat=return_feat,
             device=conf.get("device", "cuda"), variable_mode=conf.get("variable_mode", True),
+            **kwargs
         )
+
+    def _build_hashed_feats(self):
+        # Precompute the hashed features for all possible event locations
+        w, h, t = self.w, self.h, self.t
+        xs = torch.arange(w, device=self.device) / w
+        ys = torch.arange(h, device=self.device) / h
+        ts = torch.arange(t, device=self.device) / t
+        stacked = torch.stack(torch.meshgrid(xs, ys, ts, indexing='ij'), dim=-1).reshape(-1, 3)  # (w*h*t, 3)
+        self.hashed_feats = torch.zeros(w, h, t, self.multi_hash_encoder.feature_size * self.multi_hash_encoder.levels, device=self.device)
+        with torch.no_grad():
+            # chunk to avoid OOM
+            chunk_size = 100000
+            for i in range(0, stacked.shape[0], chunk_size):
+                end = min(i + chunk_size, stacked.shape[0])
+                hashed_chunk = self.multi_hash_encoder(stacked[i:end][None, ...])[0]  # (chunk_size, L*F)
+                self.hashed_feats.view(-1, self.multi_hash_encoder.feature_size * self.multi_hash_encoder.levels)[i:end] = hashed_chunk
 
     def save_config(self, path: str):
         with open(path, "w") as f:
@@ -530,6 +649,7 @@ class EventPatchFF(nn.Module):
                 "frame_sizes": self.frame_sizes, "dims": self.dims, "convkernels": self.convkernels,
                 "convdepths": self.convdepths, "convbtlncks": self.convbtlncks, "convdilations": self.convdilations,
                 "dskernels": self.dskernels, "dsstrides": self.dsstrides, "patch_size": self.patch_size,
+                "use_upsampling": self.use_upsampling, "upsampling_dims": self.upsampling_dims,
                 "use_decoder_block": self.use_decoder_block, "variable_mode": self.variable_mode
             }, f, default_flow_style=None)
 
@@ -543,10 +663,9 @@ class EventPatchFF(nn.Module):
 
         encoded_events = self.multi_hash_encoder(currentBlock) # (B,N,3)/(B,N,4) -> (B,N,L*F)
 
-        feature_field = torch.zeros(B, encoded_events.shape[-1], self.w, self.h).to(encoded_events.device)
+        feature_field = torch.zeros((B, self.w, self.h, encoded_events.shape[-1]), device=encoded_events.device)
         batch_indices = torch.arange(B).to(encoded_events.device).view(-1, 1).expand(B, N)
-        feature_field[batch_indices, :, curr_x, curr_y] += encoded_events
-
+        feature_field.index_put_((batch_indices, curr_x, curr_y), encoded_events, accumulate=True)
         return feature_field
 
     def forward_variable(self, currentBlock: torch.Tensor, eventCounts: torch.Tensor) -> torch.Tensor:
@@ -560,12 +679,36 @@ class EventPatchFF(nn.Module):
 
         encoded_events = self.multi_hash_encoder(currentBlock.unsqueeze(0)).clone().squeeze(0) # (N,3)/(N,4) -> (N,L*F)
 
-        feature_field = torch.zeros((B, encoded_events.shape[-1], self.w, self.h), device=encoded_events.device)
+        feature_field = torch.zeros((B, self.w, self.h, encoded_events.shape[-1]), device=encoded_events.device)
         batch_indices = torch.repeat_interleave(eventCounts).int() # Offending line, cant compile. I am not spending time on this for now.
-        feature_field[batch_indices, :, curr_x, curr_y] += encoded_events
-        return feature_field
+        feature_field.index_put_((batch_indices, curr_x, curr_y), encoded_events, accumulate=True)
+        return feature_field.permute(0, 3, 1, 2)  # (B, C, W, H)
 
-    def forward(self, currentBlock: torch.Tensor, eventCounts: torch.Tensor=None) -> torch.Tensor:
+    def forward_variable_single(self, currentBlock: torch.Tensor) -> torch.Tensor:
+        """
+        This is for single batch variable mode inference. This is important for torch/onnx/trt compilation
+        because it enables full graph compilation. And in actual deployment scenarios, we usually process
+        one batch of events at a time anyway. Variable number of events per batch is still supported.
+
+            currentBlock: torch.Tensor (N, 3/4) N = N1 + N2 + N3 + ... + NB
+        """
+        curr_x = (currentBlock[:,0] * self.w).round().int().clamp(0, self.w - 1)
+        curr_y = (currentBlock[:,1] * self.h).round().int().clamp(0, self.h - 1)
+        # AOTI export doesnt work without the clamping
+
+        if getattr(self, "hashed_feats", None) is None:
+            encoded_events = self.multi_hash_encoder(currentBlock[None, ...])[0] # (N,3)/(N,4) -> (N,L*F)
+        else: # this is slightly faster at the cost of a lot more memory
+            curr_t = (currentBlock[:,2] * self.t).round().int().clamp(0, self.t - 1)
+            encoded_events = self.hashed_feats[curr_x, curr_y, curr_t]  # shape: (N, LF)
+
+        feature_field = torch.zeros((self.w, self.h, encoded_events.shape[-1]),
+                                    device=encoded_events.device,
+                                    dtype=encoded_events.dtype)
+        feature_field.index_put_((curr_x, curr_y), encoded_events, accumulate=True)
+        return feature_field.permute(2, 0, 1)[None, ...]  # (1, C, W, H)
+
+    def forward(self, currentBlock: torch.Tensor, eventCounts: Optional[torch.Tensor]=None) -> Optional[tuple[torch.Tensor, ...]]:
         """
             currentBlock: torch.Tensor (B, N, 3/4) or (N, 3/4) N = N1 + N2 + N3 + ... + NB
             eventCounts: torch.Tensor (B,) [N1, N2, N3, ..., NB]
@@ -574,19 +717,51 @@ class EventPatchFF(nn.Module):
             return None
 
         if self.variable_mode:
-            x = self.forward_variable(currentBlock, eventCounts) # (B,C,W,H)
+            if self.single_batch_mode:
+                x = self.forward_variable_single(currentBlock)  # (1, C, W, H)
+            else:
+                x = self.forward_variable(currentBlock, eventCounts) # (B,C,W,H)
         else:
-            x = self.forward_fixed(currentBlock) # (B,C,W,H)
+            if self.single_batch_mode:
+                raise ValueError("Inference mode with fixed mode is not supported.")
+            else:
+                x = self.forward_fixed(currentBlock) # (B,C,W,H)
+
+        if self.run_downsampled is not None:
+            x = F.interpolate(
+                x,
+                size=self.run_downsampled,
+                mode="bilinear",
+                align_corners=True
+            )
+
+        skip_connections = []  # Store the input as the first skip connection
+        if self.use_upsampling:
+            skip_connections.append(x)
 
         for i in range(self._nstages):
             x = self.downsample_layers[i](x)
             x = self.stages[i](x)
+            if self.use_upsampling and i < self._nstages - 1:
+                skip_connections.append(x)
+
+        if self.use_upsampling:
+            for i in range(len(self.upsample_layers) - 1):
+                skip = skip_connections[-(i+1)]  # Get skip connections in reverse order
+                x = self.upsample_layers[i](x)   # Upsample
+                x = torch.cat([skip, x], dim=1)  # Concatenate with skip connection
+                x = self.upsample_process[i](x)  # Process concatenated features
+
+            x = self.upsample_layers[-1](x)
+            downsampled_hash = self.downsample_hash_to_patchsize(skip_connections[0]) # (B, C, W/ps, H/ps)
+            x = torch.cat([x, downsampled_hash], dim=1)  # Concatenate along channel dimension
+            x = self.upsample_process[-1](x)
 
         if self.return_feat:
             feat = x.permute(0, 2, 3, 1)
 
         if  not self.return_logits and self.return_feat:
-            return None, feat
+            return feat
 
         if self.use_decoder_block:
             x = self.decoder(x)
@@ -594,8 +769,7 @@ class EventPatchFF(nn.Module):
 
         logits = self.unpatchify(logits) # (B,patch_size**2*T,W/ds,H/ds) -> (B,W,H,T)
 
-        ret = (None,)
-        if self.return_logits: ret = (logits,)
+        ret = (logits,)
         if self.return_feat: ret += (feat,)
         return ret
 
@@ -642,7 +816,7 @@ def init_f3_model(eventff_config: str, return_feat: bool=False, **kwargs) -> nn.
     return model.init_from_config(eventff_config, return_feat=return_feat, **kwargs)
 
 
-def f3(pretrained: bool=False, **kwargs) -> nn.Module:
+def f3(pretrained: bool=False, compile: bool=True, **kwargs) -> nn.Module:
     """Load the Fast Feature Field (F3) model via PyTorch Hub
 
     This is a PyTorch Hub entrypoint for loading F3 models with various configurations.
@@ -689,7 +863,7 @@ def f3(pretrained: bool=False, **kwargs) -> nn.Module:
     assert Path(cfg).is_file(), f"Config file {cfg} does not exist."
 
     model = init_f3_model(cfg, **kwargs)
-    model = compile_and_freeze_params(model, compile=True, freeze=False)
+    model = compile_and_freeze_params(model, compile=compile, freeze=False)
 
     if pretrained:
         assert name in MODEL_NAME_TO_CKPT, f"Model name {name} not found in MODEL_NAME_TO_CKPT"

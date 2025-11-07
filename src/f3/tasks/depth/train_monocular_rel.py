@@ -20,6 +20,7 @@ parser.add_argument("--compile", action="store_true", help="Torch compile both t
 parser.add_argument("--baseline", action="store_true", help="Use the baseline model.")
 parser.add_argument("--amp", action="store_true", help="Use AMP for training.")
 parser.add_argument("--init", type=str, default=None, help="Path to the initial weights for the model.")
+parser.add_argument("--retrain_f3", action="store_true", help="Whether to retrain f3 backbone for the depth task.")
 
 
 args = parser.parse_args()
@@ -48,14 +49,15 @@ def main():
     if args.baseline:
         model = EventDepthAnythingV2(args.dav2_config, args.eventmodel,
                                      *args.frame_sizes, args.time_ctx // args.bucket)
+        model_uncompiled = model  # Keep reference to non-compiled model
         if args.compile:
-            model = torch.compile(model, fullgraph=False)
+            model.dav2 = torch.compile(model, fullgraph=False)
     else:
-        model = EventFFDepthAnythingV2(args.eventff["config"], args.dav2_config)
-        if not args.compile:
-            model.eventff = torch.compile(model.eventff, fullgraph=False)
-        else:
-            model = torch.compile(model, fullgraph=False)
+        model = EventFFDepthAnythingV2(args.eventff["config"], args.dav2_config, args.retrain_f3)
+        model_uncompiled = model  # Keep reference to non-compiled model
+        model.eventff = torch.compile(model.eventff, fullgraph=False)
+        if args.compile:
+            model.dav2 = torch.compile(model.dav2)
         model.load_weights(args.eventff["ckpt"])
     model.save_configs(models_path)
 
@@ -85,6 +87,8 @@ def main():
                 param_groups.append({'params': param, 'lr': args.lr, 'weight_decay': 0.0})
             else:
                 param_groups.append({'params': param, 'lr': args.lr})
+        elif 'eventff' in name:
+            param_groups.append({'params': param, 'lr': 0.5 * args.lr})
         else:
             param_groups.append({'params': param, 'lr': 10 * args.lr})
     optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.999), weight_decay=0.01)
@@ -136,6 +140,8 @@ def main():
                     "scheduler": scheduler.state_dict()
                 }
                 torch.save(best_dict, f"{models_path}/best.pth")
+                if args.compile:
+                    torch.save(model_uncompiled.state_dict(), f"{models_path}/best_uncompiled.pth")
                 logger.info(f"Saving best model at epoch: {epoch},")
                 log_dict(logger, best_results)
             if better_2pe:
@@ -147,6 +153,8 @@ def main():
                     "scheduler": scheduler.state_dict()
                 }
                 torch.save(best_2pe_dict, f"{models_path}/best_2pe.pth")
+                if args.compile:
+                    torch.save(model_uncompiled.state_dict(), f"{models_path}/best_2pe_uncompiled.pth")
                 logger.info(f"Saving best 2pe model at epoch: {epoch},")
                 log_dict(logger, best_results)
                 
@@ -159,6 +167,8 @@ def main():
             "scheduler": scheduler.state_dict()
         }
         torch.save(last_dict, f"{models_path}/last.pth")
+        if args.compile:
+            torch.save(model_uncompiled.state_dict(), f"{models_path}/last_uncompiled.pth")
 
         # For long runs we want intermediate checkpoints
         if (epoch+1) % args.log_interval == 0:

@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset, DataLoader
 
-from .utils_gen import collate_fn_general
+from .utils_gen import collate_fn_general, H5WithLazyDivision
 
 from numpy.random import default_rng
 rng = default_rng(42)
@@ -56,11 +56,29 @@ class BaseExtractor(Dataset):
         self.hdf5_fp = hdf5_file
         self.hdf5_file = h5py.File(hdf5_file, "r")
 
+        ALLOWED_DATASETS = ["m3ed", "dsec", "mvsec", "tartanair-v2"]
+        assert dtype in ALLOWED_DATASETS, \
+            f"Invalid dataset type {dtype}! Allowed types are {ALLOWED_DATASETS}"
+
         # Load the timestamps file
-        self.timestamps_50khz = np.load(timestamps_50khz_file, allow_pickle=True)[()][camera]
-        #* Time stamps 50KHz always has timestamps of "where to insert the event" so that the queried time
-        #* is >= all the previous timestamps. So the event with the requested time stamp or lesser than that
-        #* will be -1 the returned index. Not a bug or a feature, just a note to remember 
+        if timestamps_50khz_file is not None:
+            self.us_to_discretize = 20  # 50KHz -> 20us per index
+            self.timestamps = np.load(timestamps_50khz_file, allow_pickle=True)[()][camera]
+            #* Time stamps 50KHz always has timestamps of "where to insert the event" so that the queried time
+            #* is >= all the previous timestamps. So the event with the requested time stamp or lesser than that
+            #* will be -1 the returned index. Not a bug or a feature, just a note to remember
+            self.logger.info(f"Timestamps 50KHz file {timestamps_50khz_file} loaded successfully!")
+        else:
+            self.us_to_discretize = 1000  # 1KHz -> 1000us per index
+            if dtype == "tartanair-v2":
+                self.timestamps = self.hdf5_file["ms_to_idx"]
+            elif dtype == "m3ed":
+                self.timestamps = self.hdf5_file[f"prophesee/{camera}/ms_map_idx"]
+            elif dtype == "dsec":
+                self.timestamps = self.hdf5_file["ms_to_idx"]
+            elif dtype == "mvsec":
+                raise ValueError("⚠️ MVSEC h5 files do not have millisecond to event index mapping. So generate the timestamps_50khz_file and use it!")
+            self.logger.info(f"Timestamps loaded from hdf5 file for {dtype} dataset successfully -- 'ms_to_idx' is used!")
 
         if dtype == "m3ed":
             # We use the "camera" event camera
@@ -81,8 +99,12 @@ class BaseExtractor(Dataset):
             self.events_y = self.hdf5_file[f"davis/{camera}/events/y"]
             self.events_t = self.hdf5_file[f"davis/{camera}/events/t"]
             self.events_p = self.hdf5_file[f"davis/{camera}/events/p"]
-        else:
-            raise ValueError(f"Invalid dtype: {dtype}! Should be either m3ed or dsec or mvsec!")
+        elif dtype == "tartanair-v2":
+            self.w, self.h = 640, 640   #! Important: resolution in the dataset
+            self.events_x = self.hdf5_file["events/x"]
+            self.events_y = self.hdf5_file["events/y"]
+            self.events_t = H5WithLazyDivision(self.hdf5_file["events/t"], 1000) # convert ns to us
+            self.events_p = self.hdf5_file["events/p"]
 
         self.dtype = dtype
         self.camera = camera
@@ -127,9 +149,8 @@ class BaseExtractor(Dataset):
             json.dump(oldmetadata, f)
 
     def get_ctx_fixedtime(self, t0):
-        # t0 should be divisible by 20
-        ei = int(self.timestamps_50khz[t0 // 20] - 1)
-        si = self.timestamps_50khz[(t0 - self.time_ctx) // 20 + 1]
+        ei = int(self.timestamps[t0 // self.us_to_discretize] - 1)
+        si = self.timestamps[(t0 - self.time_ctx) // self.us_to_discretize + 1]
         totcnt = int(ei - si)
         _used = min(totcnt, self.max_numevents_ctx)
         ctx = np.empty((_used, 4), dtype=np.int32)
@@ -154,9 +175,8 @@ class BaseExtractor(Dataset):
         return ctx, _used
 
     def get_pred_fixedtime(self, t0):
-        # t0 should be divisible by 20
-        si = self.timestamps_50khz[t0 // 20]
-        ei = int(self.timestamps_50khz[(t0 + self.time_pred) // 20] - 1)
+        si = self.timestamps[t0 // self.us_to_discretize]
+        ei = int(self.timestamps[(t0 + self.time_pred) // self.us_to_discretize] - 1)
         totcnt = int(ei - si)
         pred = np.zeros((totcnt, 4), dtype=np.int32)
         pred[:,0] = self.events_x[si:ei] + self.trgt_ofs[0]
@@ -235,7 +255,8 @@ class EventDatasetSingleHDF5(BaseExtractor):
             start_time = self.time_ctx                     # in us
             end_time = self.events_t[-1] - self.time_pred  # in us
             for t0 in tqdm(range(start_time, end_time, self.time_ctx), desc="Metadata Pretraining"):
-                cnt = self.timestamps_50khz[t0 // 20] - self.timestamps_50khz[(t0 - self.time_ctx) // 20] - 1
+                cnt = self.timestamps[t0 // self.us_to_discretize] - \
+                      self.timestamps[(t0 - self.time_ctx) // self.us_to_discretize] - 1
                 if cnt >= self.min_numevents_ctx:
                     self.valid_0_points.append(t0)
                     self.logger.info(f"Valid point: {t0}!")
@@ -306,7 +327,7 @@ def get_dataloader_from_args(args: dict, logger: logging.Logger, shuffle: bool=T
         with open(dataset, "r") as f:
             datasets.extend(yaml.safe_load(f)['datasets'])
     hdf5_files = [dataset['dataset_path'] for dataset in datasets]
-    timestamps_files = [dataset['timestamps_path'] for dataset in datasets]
+    timestamps_files = [dataset.get('timestamps_path', None) for dataset in datasets]
     cameras = [dataset['camera'] for dataset in datasets]
     dtypes = [dataset['dtype'] for dataset in datasets]
     ranges = [dataset['range'] for dataset in datasets]

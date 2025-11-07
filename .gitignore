@@ -18,3 +18,5 @@ pretrained*/
 *.out
 *.log
 *.mp4
+*.pt2
+*.pth
