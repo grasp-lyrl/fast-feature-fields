@@ -1,0 +1,708 @@
+datasets:
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P000/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P001/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P002/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P003/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P004/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P005/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P000/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P002/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P003/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P004/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P005/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P000/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P001/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P002/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P003/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P004/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P005/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P006/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P001/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P002/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P003/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P004/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P005/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P006/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P000/events.h5
+  depth_path: data/CarWelding/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P001/events.h5
+  depth_path: data/CarWelding/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P002/events.h5
+  depth_path: data/CarWelding/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P003/events.h5
+  depth_path: data/CarWelding/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P004/events.h5
+  depth_path: data/CarWelding/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P005/events.h5
+  depth_path: data/CarWelding/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P006/events.h5
+  depth_path: data/CarWelding/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P007/events.h5
+  depth_path: data/CarWelding/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CarWelding/Data_easy/P008/events.h5
+  depth_path: data/CarWelding/Data_easy/P008/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CoalMine/Data_easy/P000/events.h5
+  depth_path: data/CoalMine/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CoalMine/Data_easy/P003/events.h5
+  depth_path: data/CoalMine/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CoalMine/Data_easy/P004/events.h5
+  depth_path: data/CoalMine/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CoalMine/Data_easy/P005/events.h5
+  depth_path: data/CoalMine/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P000/events.h5
+  depth_path: data/CountryHouse/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P001/events.h5
+  depth_path: data/CountryHouse/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P002/events.h5
+  depth_path: data/CountryHouse/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P003/events.h5
+  depth_path: data/CountryHouse/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P004/events.h5
+  depth_path: data/CountryHouse/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CountryHouse/Data_easy/P005/events.h5
+  depth_path: data/CountryHouse/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P000/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P001/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P002/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P003/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P004/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P005/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P006/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P000/events.h5
+  depth_path: data/Hospital/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P001/events.h5
+  depth_path: data/Hospital/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P002/events.h5
+  depth_path: data/Hospital/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P003/events.h5
+  depth_path: data/Hospital/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P004/events.h5
+  depth_path: data/Hospital/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P005/events.h5
+  depth_path: data/Hospital/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P006/events.h5
+  depth_path: data/Hospital/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P007/events.h5
+  depth_path: data/Hospital/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P008/events.h5
+  depth_path: data/Hospital/Data_easy/P008/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P009/events.h5
+  depth_path: data/Hospital/Data_easy/P009/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Hospital/Data_easy/P010/events.h5
+  depth_path: data/Hospital/Data_easy/P010/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P000/events.h5
+  depth_path: data/House/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P001/events.h5
+  depth_path: data/House/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P002/events.h5
+  depth_path: data/House/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P003/events.h5
+  depth_path: data/House/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P004/events.h5
+  depth_path: data/House/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P005/events.h5
+  depth_path: data/House/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P006/events.h5
+  depth_path: data/House/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/House/Data_easy/P007/events.h5
+  depth_path: data/House/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P000/events.h5
+  depth_path: data/Office/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P001/events.h5
+  depth_path: data/Office/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P002/events.h5
+  depth_path: data/Office/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P003/events.h5
+  depth_path: data/Office/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P004/events.h5
+  depth_path: data/Office/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P005/events.h5
+  depth_path: data/Office/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Office/Data_easy/P006/events.h5
+  depth_path: data/Office/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P001/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P002/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P003/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P004/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P005/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P006/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseDay/Data_easy/P007/events.h5
+  depth_path: data/OldBrickHouseDay/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P001/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P002/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P004/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P005/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P006/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/OldBrickHouseNight/Data_easy/P007/events.h5
+  depth_path: data/OldBrickHouseNight/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P000/events.h5
+  depth_path: data/Restaurant/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P001/events.h5
+  depth_path: data/Restaurant/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P002/events.h5
+  depth_path: data/Restaurant/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P003/events.h5
+  depth_path: data/Restaurant/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P004/events.h5
+  depth_path: data/Restaurant/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P005/events.h5
+  depth_path: data/Restaurant/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P006/events.h5
+  depth_path: data/Restaurant/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P007/events.h5
+  depth_path: data/Restaurant/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Restaurant/Data_easy/P008/events.h5
+  depth_path: data/Restaurant/Data_easy/P008/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P000/events.h5
+  depth_path: data/RetroOffice/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P001/events.h5
+  depth_path: data/RetroOffice/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P002/events.h5
+  depth_path: data/RetroOffice/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P003/events.h5
+  depth_path: data/RetroOffice/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P004/events.h5
+  depth_path: data/RetroOffice/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/RetroOffice/Data_easy/P005/events.h5
+  depth_path: data/RetroOffice/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P002/events.h5
+  depth_path: data/Sewerage/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P006/events.h5
+  depth_path: data/Sewerage/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P007/events.h5
+  depth_path: data/Sewerage/Data_easy/P007/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P008/events.h5
+  depth_path: data/Sewerage/Data_easy/P008/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P009/events.h5
+  depth_path: data/Sewerage/Data_easy/P009/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P010/events.h5
+  depth_path: data/Sewerage/Data_easy/P010/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Sewerage/Data_easy/P011/events.h5
+  depth_path: data/Sewerage/Data_easy/P011/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P000/events.h5
+  depth_path: data/Supermarket/Data_easy/P000/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P001/events.h5
+  depth_path: data/Supermarket/Data_easy/P001/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P002/events.h5
+  depth_path: data/Supermarket/Data_easy/P002/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P003/events.h5
+  depth_path: data/Supermarket/Data_easy/P003/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P004/events.h5
+  depth_path: data/Supermarket/Data_easy/P004/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P005/events.h5
+  depth_path: data/Supermarket/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/Supermarket/Data_easy/P006/events.h5
+  depth_path: data/Supermarket/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]

@@ -65,12 +65,25 @@ class TimeAlignedDepthAndEvents(EventDatasetSingleHDF5):
             ) * 1e6).astype(np.uint64)
             self.src_ofst_res = torch.tensor([(h - 260) // 2, (w - 346) // 2, 260, 346], dtype=torch.int32)
 
+        elif dtype == "tartanair-v2_gt":
+            self.fb = 320 * 0.25 # focal length * baseline in pixel * meters
+            folder = Path(depth_path)
+            png_paths = sorted(
+                (folder / f"depth_{camera}").glob("*.png"),
+                key=lambda x: int(x.stem.split('_')[0])
+            )
+            self.depth = [str(path) for path in png_paths]
+            if len(self.depth) == 0:
+                raise ValueError(f"No depth png files found in {folder / f'depth_{camera}'}!")
+            self.ts_map = np.arange(len(self.depth), dtype=np.uint64) * 100000  # Tartanair-v2 depth is at 10Hz, so every 100000us
+            self.src_ofst_res = torch.tensor([(h - 640) // 2, (w - 640) // 2, 640, 640], dtype=torch.int32)
+
         else:
             raise ValueError("dtype should be either m3ed or dsec!")
 
         self.transform = lambda disparity: cv2.resize(disparity, [h, w], interpolation=cv2.INTER_NEAREST)
 
-        dtype, self.mode = dtype.split('_') # [m3ed, dsec]x[pseudo, gt]
+        dtype, self.mode = dtype.split('_') # [m3ed, dsec, tartanair-v2]x[pseudo, gt]
         super(TimeAlignedDepthAndEvents, self).__init__(
             hdf5_file=hdf5_file, timestamps_50khz_file=timestamps_50khz_file, w=w, h=h,
             min_numevents_ctx=min_numevents_ctx, max_numevents_ctx=max_numevents_ctx,
@@ -85,10 +98,10 @@ class TimeAlignedDepthAndEvents(EventDatasetSingleHDF5):
             self.valid_0_points = []
             for idx in tqdm(range(self.ts_map.size), "Metadata Depths"):
                 t0 = self.ts_map[idx] + self.time_ctx // 2
-                t0 = t0 if t0 % 20 == 0 else (t0 // 20 + 1) * 20 # get it to be a multiple of 20
-                if t0 <= self.time_ctx: continue
-                if t0 // 20 >= self.timestamps_50khz.shape[0]: continue
-                cnt = self.timestamps_50khz[t0 // 20] - self.timestamps_50khz[(t0 - self.time_ctx) // 20] - 1
+                if (t0 <= self.time_ctx) or (t0 // self.us_to_discretize >= self.timestamps.shape[0]):
+                    continue
+                cnt = self.timestamps[t0 // self.us_to_discretize] - \
+                      self.timestamps[(t0 - self.time_ctx) // self.us_to_discretize]
                 if cnt >= self.min_numevents_ctx:
                     self.valid_0_points.append(idx)
                     self.logger.info(f"Valid index: {idx}!")
@@ -107,7 +120,6 @@ class TimeAlignedDepthAndEvents(EventDatasetSingleHDF5):
     def __getitem__(self, idx):
         fidx = self.valid_0_points[idx]
         t0 = self.ts_map[fidx] + self.time_ctx // 2
-        t0 = t0 if t0 % 20 == 0 else (t0 // 20 + 1) * 20 # get it to be a multiple of 20
         ctx, totcnt = self.get_ctx_fixedtime(t0) # Load from [-time_ctx//2 ... t0 ... time_ctx//2]
 
         if self.dtype == "m3ed":
@@ -127,6 +139,14 @@ class TimeAlignedDepthAndEvents(EventDatasetSingleHDF5):
         elif self.dtype == "mvsec":
             badmask = np.isnan(self.depth[fidx]) | (self.depth[fidx] > 80) | (self.depth[fidx] < 0.1)
             disparity = self.fb / self.depth[fidx]
+            disparity[badmask] = 65535
+
+        elif self.dtype == "tartanair-v2":
+            #! Tartanair-v2 depth is in 4 channel png files, need to read and convert to float32 depth in meters
+            depth = cv2.imread(self.depth[fidx], cv2.IMREAD_UNCHANGED)
+            depth = depth.view("<f4").squeeze(-1)
+            badmask = np.isnan(depth) | (depth > 400) | (depth < 0.01) # Just a sanity filter. Implement actual filtering in train loop.
+            disparity = self.fb / depth # So should produce disparity in range of [0.2, 8000] for depths [0.01, 400] meters
             disparity[badmask] = 65535
 
         disparity = np.pad(disparity, ((self.src_ofst_res[0], self.src_ofst_res[0]),
@@ -169,7 +189,7 @@ def get_dataloader_from_args(args: dict, logger: logging.Logger, shuffle: bool=T
             datasets.extend(yaml.safe_load(f)['datasets'])
     hdf5_files = [dataset['dataset_path'] for dataset in datasets]
     depth_paths = [dataset['depth_path'] for dataset in datasets]
-    timestamps_files = [dataset['timestamps_path'] for dataset in datasets]
+    timestamps_files = [dataset.get('timestamps_path', None) for dataset in datasets]
     cameras = [dataset['camera'] for dataset in datasets]
     dtypes = [dataset['dtype'] for dataset in datasets]
     ranges = [dataset['range'] for dataset in datasets]
