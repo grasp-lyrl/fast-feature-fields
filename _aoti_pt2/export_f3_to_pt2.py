@@ -55,8 +55,8 @@ def parse_args():
 
 
 def compile_engine_and_infer(args):
-    model = torch.hub.load('/home/richeek/GitHub/fast-feature-fields', 'f3',
-                           source='local',
+    model = torch.hub.load('grasp-lyrl/fast-feature-fields',
+                           'f3',
                            name=args.model_name,
                            compile=False,
                            pretrained=False,
