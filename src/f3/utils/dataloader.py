@@ -235,8 +235,8 @@ class EventDatasetSingleHDF5(BaseExtractor):
             start_time = self.time_ctx                     # in us
             end_time = self.events_t[-1] - self.time_pred  # in us
             for t0 in tqdm(range(start_time, end_time, self.time_ctx), desc="Metadata Pretraining"):
-                cnt = self.timestamps_50khz[t0 // 20] - self.timestamps_50khz[(t0 - self.time_ctx) // 20] - 1
-                if cnt >= self.min_numevents_ctx:
+                cnt = self.timestamps_50khz[t0 // 20] - self.timestamps_50khz[(t0 - self.time_ctx) // 20]
+                if (cnt > 0) and ((cnt-1) >= self.min_numevents_ctx):
                     self.valid_0_points.append(t0)
                     self.logger.info(f"Valid point: {t0}!")
             self.numblocks = len(self.valid_0_points) # number of data points we have for training and testing
