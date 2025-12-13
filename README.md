@@ -78,12 +78,153 @@ accelerate launch --config_file confs/accelerate_confs/2GPU.yml main.py\
 
 ### Training downstream tasks using F<sup>3</sup>
 
-- Coming soon!
+We provide training scripts and pretrained models for multiple downstream tasks. Each task has its own detailed README:
 
+- **Monocular Depth Estimation**: See [`src/f3/tasks/depth/README.md`](src/f3/tasks/depth/README.md)
+
+- **Optical Flow Estimation**: See [`src/f3/tasks/optical_flow/README.md`](src/f3/tasks/optical_flow/README.md)
+
+- **Semantic Segmentation**: See [`src/f3/tasks/segmentation/README.md`](src/f3/tasks/segmentation/README.md)
 
 ### Using F<sup>3</sup> as a pretrained backbone for your task
 
-- Coming soon!
+F<sup>3</sup> can be easily integrated as a feature extractor for your custom tasks. The model outputs dense feature representations that can be fed to task-specific decoders. More instructions coming soon!
+
+
+## AOTI PT2 Export for Deployment
+
+For high-performance deployment on edge devices (e.g., NVIDIA Jetson) or in C++ applications, F<sup>3</sup> and its downstream models can be exported to PyTorch 2.x AOTI (Ahead-Of-Time Inductor) `.pt2` format. This enables:
+- Inference without Python dependencies
+- Reduced latency and memory footprint
+- Easy integration with ROS2 and C++ pipelines
+
+See [`_aoti_pt2/README.md`](_aoti_pt2/README.md) for detailed export and deployment instructions.
+
+### Inference Speed Comparison
+
+| Platform | Resolution | F<sup>3</sup> | F<sup>3</sup> + Depth | F<sup>3</sup> + Flow |
+|----------|------------|---------------|------------------------|----------------------|
+| Desktop RTX 4090 | 1280x720 | 2.23 ms | 14.43 ms | 4.71 ms |
+| Desktop RTX 4090 | 320x240 | 0.62 ms | 2.87 ms | 2.18 ms |
+| Jetson Orin (JP 6.2) | 320 x240 | 4.6 ms | TBD | TBD |
+
+*Benchmarks using with 200 K events per batch, fp16/bf16 precision.*
+
+
+## Artifacts and Utilities
+
+This section contains additional tools and scripts for dataset analysis, ground truth generation, and reproducibility of experiments.
+
+### DSEC Semantic Misalignment Analysis
+
+Verify the temporal misalignment between events and semantic labels in the DSEC dataset, as discussed in the F<sup>3</sup> paper:
+
+```bash
+python scripts/dsec_semantic_misalignment_test.py
+```
+
+This script:
+- Loads event data and semantic segmentation labels from DSEC
+- Visualizes the temporal alignment between modalities
+
+### Ground Truth Generation for M3ED
+
+#### Optical Flow Ground Truth
+
+Generate optical flow ground truth from LiDAR point clouds for any camera in M3ED:
+
+
+```bash
+python src/f3/tasks/optical_flow/generate_gt.py \
+    --events_h5 /path/to/m3ed_events.h5 \
+    --depth_h5 /path/to/m3ed_depths.h5 \
+    --base_name name_for_output_file.h5
+```
+
+This script:
+1. Loads LiDAR point clouds and camera poses from M3ED
+2. Computes egomotion from consecutive poses and depth
+3. Saves flow maps as HDF5 files with timestamps
+4. Optionally generates color-coded flow visualizations
+
+See [`src/f3/tasks/optical_flow/README.md`](src/f3/tasks/optical_flow/README.md) for detailed usage.
+
+#### Monocular Depth Ground Truth
+
+Generate rectified monocular depth maps from RGB/Grayscale images using DepthAnything V2 for any camera in M3ED:
+
+```bash
+python src/f3/tasks/depth/generate_depth.py \
+    --h5fn /path/to/input_h5 \
+    --out_h5fn /path/to/output_h5 \
+    --target prophesee \ # camera to warp to
+    --side left \ # side of the camera to warp to
+    --checkpoint /path/to/depthanythingv2_checkpoint.pth
+```
+
+This script:
+1. Loads RGB images from the source camera
+2. Generates depth predictions using DepthAnything V2
+3. Warps the depth maps to the target camera frame using camera calibration
+4. Saves the rectified depth maps as HDF5 files
+
+See [`src/f3/tasks/depth/README.md`](src/f3/tasks/depth/README.md) for detailed usage.
+
+### Additional Scripts
+
+- **`scripts/generate_rectified_images.py`**: Generate undistorted images from raw M3ED camera streams
+- **`scripts/viz_gt_depth.py`**: Visualize depth ground truth
+- **`scripts/viz_gt_flow.py`**: Visualize optical flow ground truth
+- **`scripts/m3ed_viz.py`**: Visualize M3ED data
+
+
+## Project Structure
+
+```
+fast-feature-fields/
+├── main.py                          # Train F³ models on event datasets
+├── everything.py                    # Run inference on all tasks simultaneously
+├── test_speed.py                    # Benchmark inference speed for F³ and downstream tasks
+├── minimal.ipynb                    # Quick start notebook for inference
+├── hubconf.py                       # PyTorch Hub integration for loading pretrained models
+│
+├── confs/                           # Configuration files
+│   ├── ff/                          # F³ model, training, and data configurations
+│   ├── monocular_depth/             # Depth estimation training configs
+│   ├── optical_flow/                # Optical flow training configs
+│   ├── segmentation/                # Semantic segmentation training configs
+│   ├── everything/                  # Multi-task joint inference configs
+│   └── accelerate_confs/            # Multi-GPU training configurations
+│
+├── src/f3/                          # Core F³ implementation
+│   ├── event_FF.py                  # F³ model architecture
+│   ├── utils/                       # Training utilities, data loading, visualization
+│   └── tasks/                       # Downstream task implementations
+│       ├── depth/                   # Monocular depth estimation (see task README)
+│       ├── optical_flow/            # Optical flow estimation (see task README)
+│       ├── segmentation/            # Semantic segmentation (see task README)
+│       ├── matching/                # Feature matching utilities
+│       └── robustness/              # Robustness evaluation tools
+│
+├── scripts/                         # Utility scripts
+│   ├── download/                    # Dataset download scripts
+│   └── setup/                       # Dataset preprocessing and setup
+│
+├── data/                            # Dataset symlinks and setup instructions
+│   └── README.md                    # Detailed dataset setup guide
+│
+├── _aoti_pt2/                       # PyTorch 2.x AOTI export for deployment
+│   ├── export_*.py                  # Export models to .pt2 format
+│   ├── _py_src/                     # Python pt2 inference implementation
+│   └── _cpp_src/                    # C++ pt2 inference implementation
+│
+└── outputs/                         # Training outputs (auto-generated)
+    ├── {experiment_name}/           # Per-experiment directories
+    │   ├── models/                  # Model checkpoints
+    │   └── logs/                    # Training logs
+```
+
+Each task directory (`src/f3/tasks/{task}/`) contains its own README with detailed training and evaluation instructions.
 
 ---
 
