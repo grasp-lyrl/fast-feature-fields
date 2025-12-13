@@ -2,7 +2,7 @@ import torch
 import wandb
 from tqdm import tqdm
 
-from f3.utils import crop_params
+from f3.utils import crop_params, get_crop_targets, crop_and_resize_events_and_disparity
 
 
 def train_fixed_time_disparity(args, model, train_loader, optimizer, scheduler, loss_fn,
@@ -10,6 +10,12 @@ def train_fixed_time_disparity(args, model, train_loader, optimizer, scheduler, 
     # Pseudo Model is used for gradient matching if loss function is SiLogGradLoss
     model.train()
     train_loss, iter_loss = 0, 0
+
+    # Initialization for cropping and resizing
+    crop_resize_training = getattr(args, 'random_crop_resize', None)
+    if crop_resize_training is not None:
+        crop_size, stochastic_rounding, ctx_out_resolution, _ = get_crop_targets(args, pred=False)
+
     for idx, data in tqdm(enumerate(train_loader), total=len(train_loader)):
         # [(B,N,3) or (B,N,4)], [(B,W,H,2) or (B,W,H,T,2)], [(B,H,W,1)] #! T: max prediction time bins time_pred//bucket
         ff_events, event_counts, disparity, src_ofst_res = data
@@ -19,6 +25,12 @@ def train_fixed_time_disparity(args, model, train_loader, optimizer, scheduler, 
         disparity = disparity.cuda().float() # (B,H,W)
 
         if not args.polarity[0]: ff_events = ff_events[..., :3]
+
+        if crop_resize_training is not None:
+            ff_events, event_counts, disparity, src_ofst_res = crop_and_resize_events_and_disparity(
+                args, crop_size, stochastic_rounding, ff_events, event_counts,
+                disparity, src_ofst_res, ctx_out_resolution
+            )
 
         # 720x1280 ff with features in the center -> 480x480 crop from the 480x640 center. The model resizes it to 518x518.
         src_0ofst_res = src_ofst_res.clone() # (xofst, yofst, h, w)
@@ -30,9 +42,9 @@ def train_fixed_time_disparity(args, model, train_loader, optimizer, scheduler, 
             for i in range(disparity.shape[0])
         ])
 
-        with torch.autocast(device_type="cuda", enabled=args.amp, dtype=torch.float16):
+        with torch.autocast(device_type="cuda", enabled=args.amp, dtype=torch.bfloat16):
             disparity_pred = model(ff_events, event_counts, cparams)[0] # (B,N,3) -> (B,C,H,W)
-            disparity_valid_mask = disparity < args.max_disparity # don't want asburdly high disparities
+            disparity_valid_mask = disparity < args.max_disparity # don't want absurdly high disparities
             if args.loss == "siloggrad":
                 with torch.no_grad():
                     grad = pseudo_model(ff_events, event_counts, cparams)[0] # (B,N,3) -> (B,H,W)

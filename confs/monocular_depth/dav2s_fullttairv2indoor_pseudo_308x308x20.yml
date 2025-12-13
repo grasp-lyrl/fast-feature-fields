@@ -1,0 +1,49 @@
+# Training options
+lr: 6.0e-6 # Learning rate
+lr_end_factor: 1.0 # Learning rate decay
+clip_grad: 0 # Gradient clipping
+epochs: 200 # Number of epochs
+log_interval: 10 # Log interval in epochs
+val_interval: 10 # Validation interval in epochs
+polarity: [False, False] # Use polarity for the training
+
+train:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 8 # Batch size of event blocks tuned to a 24GB GPU
+  mini_batch: 8 # Mini batch size of events
+  datasets:
+  - confs/monocular_depth/full_tartanair_v2_indoor_train.yml
+
+val:
+  num_workers: 4 # Number of workers for the dataloader
+  batch: 1 # Batch size of event blocks
+  mini_batch: 1 # Mini batch size of events 
+  datasets:
+  - confs/monocular_depth/full_tartanair_v2_indoor_val.yml
+
+randomize_ctx: True
+min_numevents_ctx: 50000 # Number of events to use for the context
+max_numevents_ctx: 800000 # Number of events to use for the context
+time_ctx: 20000 # Time to use for the context in us (where to subsample the numevents_ctx events from)
+bucket: 1000 # Number of us in each frame
+frame_sizes: [640, 640] # Size of the frame
+
+# Loss options
+loss: ssimae # Loss function
+scales: 4 # Number of scales for the gradient matching loss
+alpha: 0.3 # Weight for the gradient matching loss
+max_disparity: 384 # Maximum disparity for the depth map
+
+random_crop_resize:
+  crop: [640, 480] # Crop size
+
+# dav2 config to load
+dav2_config:
+  size: 308
+  encoder: vits
+  ckpt: src/f3/tasks/depth/checkpoints/depth_anything_v2_vits.pth
+
+# which event ff model and weights to load as the backbone
+eventff:
+  config: outputs/patchff_fullcarfalconm3ed_small_20ms_vgamodels_v1/models/config.yml
+  ckpt: outputs/patchff_fullcarfalconm3ed_small_20ms_vgamodels_v1/models/last.pth

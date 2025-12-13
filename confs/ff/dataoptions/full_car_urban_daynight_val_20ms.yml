@@ -1,25 +1,25 @@
 datasets:
-- dataset_path: data/car_urban_day_penno_small_loop_data/car_urban_day_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_day_penno_small_loop_data/50khz_car_urban_day_penno_small_loop_data.npy
+- dataset_path: data/car_urban_day_penno_small_loop/car_urban_day_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_day_penno_small_loop/50khz_car_urban_day_penno_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0.5, 2, 1]
 
-- dataset_path: data/car_urban_day_ucity_small_loop_data/car_urban_day_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_day_ucity_small_loop_data/50khz_car_urban_day_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_day_ucity_small_loop/car_urban_day_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_day_ucity_small_loop/50khz_car_urban_day_ucity_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0.5, 2, 1]
 
 # Night datasets
-- dataset_path: data/car_urban_night_penno_small_loop_data/car_urban_night_penno_small_loop_data.h5
-  timestamps_path: data/car_urban_night_penno_small_loop_data/50khz_car_urban_night_penno_small_loop_data.npy
+- dataset_path: data/car_urban_night_penno_small_loop/car_urban_night_penno_small_loop_data.h5
+  timestamps_path: data/car_urban_night_penno_small_loop/50khz_car_urban_night_penno_small_loop_data.npy
   camera: left
   dtype: m3ed
   range: [0.5, 2, 1]
 
-- dataset_path: data/car_urban_night_ucity_small_loop_data/car_urban_night_ucity_small_loop_data.h5
-  timestamps_path: data/car_urban_night_ucity_small_loop_data/50khz_car_urban_night_ucity_small_loop_data.npy
+- dataset_path: data/car_urban_night_ucity_small_loop/car_urban_night_ucity_small_loop_data.h5
+  timestamps_path: data/car_urban_night_ucity_small_loop/50khz_car_urban_night_ucity_small_loop_data.npy
   camera: right
   dtype: m3ed
   range: [0.5, 2, 1]

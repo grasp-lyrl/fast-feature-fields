@@ -17,7 +17,7 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "accelerate==1.10.1",
+    "accelerate==1.1.1",
     "aiohappyeyeballs==2.6.1",
     "aiohttp==3.12.15",
     "aiosignal==1.4.0",
@@ -108,3 +108,8 @@ dependencies = [
     "xxhash==3.5.0",
     "yarl==1.20.1",
 ]
+
+[project.urls]
+Homepage = "https://www.seas.upenn.edu/~richeek/f3"
+Repository = "https://github.com/grasp-lyrl/fast-feature-fields"
+Issues = "https://github.com/grasp-lyrl/fast-feature-fields/issues"

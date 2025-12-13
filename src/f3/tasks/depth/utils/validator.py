@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 from matplotlib import cm
 
-from f3.utils import unnormalize_events, log_dict
+from f3.utils import unnormalize_events, log_dict, get_crop_targets, crop_and_resize_events_and_disparity
 from f3.tasks.depth.utils import eval_disparity, get_disparity_image
 
 
@@ -18,6 +18,14 @@ def validate_fixed_time_disparity(args, model, val_loader, loss_fn, epoch, logge
                'rmse_log': torch.tensor([0.0]).cuda(), 'log10': torch.tensor([0.0]).cuda(),
                'silog': torch.tensor([0.0]).cuda(), loss_fn.name: torch.tensor([0.0]).cuda()}
     nsamples = torch.tensor([0.0]).cuda()
+
+    frame_sizes = args.frame_sizes
+
+    # Initialization for cropping and resizing
+    crop_resize_training = getattr(args, 'random_crop_resize', None)
+    if crop_resize_training is not None:
+        crop_size, stochastic_rounding, ctx_out_resolution, frame_sizes = get_crop_targets(args, pred=False)
+
     for idx, data in tqdm(enumerate(val_loader), total=len(val_loader)):
         # [(B,N,3) or (B,N,4)], [(B,W,H,2) or (B,W,H,T,2)], [(B,H,W,1)] #! T: max prediction time bins time_pred//bucket
         ff_events, event_counts, disparity, src_ofst_res = data
@@ -28,6 +36,12 @@ def validate_fixed_time_disparity(args, model, val_loader, loss_fn, epoch, logge
         disparity = disparity.cuda().float() # (B,H,W)
 
         if not args.polarity[0]: ff_events = ff_events[..., :3]
+
+        if crop_resize_training is not None:
+            ff_events, event_counts, disparity, src_ofst_res = crop_and_resize_events_and_disparity(
+                args, crop_size, stochastic_rounding, ff_events, event_counts,
+                disparity, src_ofst_res, ctx_out_resolution
+            )
 
         crop_params = torch.cat([
             src_ofst_res[0, :2],
@@ -55,7 +69,7 @@ def validate_fixed_time_disparity(args, model, val_loader, loss_fn, epoch, logge
             ff_events = ff_events[..., :3] # (B,N,3)
             event_counts = torch.cumsum(torch.cat((torch.zeros(1), event_counts.cpu())), 0).to(torch.uint64)
             for i in range(disparity_pred.shape[0]):
-                events = unnormalize_events(ff_events.cpu()[event_counts[i]:event_counts[i+1]].numpy(), args.frame_sizes) -\
+                events = unnormalize_events(ff_events.cpu()[event_counts[i]:event_counts[i+1]].numpy(), frame_sizes) -\
                                             np.array([src_ofst_res[i, 1], src_ofst_res[i, 0]])
 
                 disparity_i = get_disparity_image(disparity[i], valid_mask[i], cmap)

@@ -37,7 +37,8 @@ bash scripts/setup_m3ed_falcon.sh /path/to/M3ED/
 Download the DSEC dataset from [here](https://dsec.ifi.uzh.ch/dsec-datasets/download/). After downloading and extracting the dataset, run the following command to set up the symbolic links and `timestamps.npy` files:
 
 ```bash
-bash scripts/setup_dsec.sh /path/to/DSEC/
+bash scripts/setup_dsec.sh /path/to/DSEC/ data/ 1 # Sets up DSEC train split in data/
+bash scripts/setup_dsec.sh /path/to/DSEC/ data/ 0 # Sets up DSEC test split in data/
 ```
 
 ### MVSEC
@@ -60,4 +61,6 @@ bash scripts/setup_mvsec.sh /path/to/MVSEC/
 
 #### TODO
 
-- [ ] Remove the need for `.npy` files. These have remained to support finer time discretization of events than 1 ms.
+- [ ] timestamps 50KHz file requirements have been removed. Update instructions accordingly.
+
+- [ ] Add instructions for downloading tartanairv2 dataset.

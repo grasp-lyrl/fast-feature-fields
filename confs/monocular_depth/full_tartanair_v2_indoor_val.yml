@@ -1,0 +1,30 @@
+datasets:
+- camera: lcam_front
+  dataset_path: data/AbandonedFactory2/Data_easy/P005/events.h5
+  depth_path: data/AbandonedFactory2/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/AmericanDiner/Data_easy/P005/events.h5
+  depth_path: data/AmericanDiner/Data_easy/P005/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseDay/Data_easy/P006/events.h5
+  depth_path: data/ArchVizTinyHouseDay/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/ArchVizTinyHouseNight/Data_easy/P006/events.h5
+  depth_path: data/ArchVizTinyHouseNight/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
+
+- camera: lcam_front
+  dataset_path: data/CyberPunkDowntown/Data_easy/P006/events.h5
+  depth_path: data/CyberPunkDowntown/Data_easy/P006/
+  dtype: tartanair-v2_gt
+  range: [0, 1, 1]
