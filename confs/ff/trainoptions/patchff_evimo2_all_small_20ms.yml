@@ -1,0 +1,37 @@
+# F3 Feature Field training config for EVIMO2v2 — ALL cameras + ALL tasks
+# Cameras: left_camera, samsung_mono, right_camera (flea3_7 excluded, RGB-only)
+# Tasks: imo (standard lighting) + imo_ll (low-light)
+# Resolution: 640x480, 20ms context, PatchFF small model
+lr: 5.0e-5
+lr_end_factor: 0.1
+epochs: 200
+log_interval: 20
+val_interval: 5
+loss_fn: VoxelFocalLoss
+polarity: [False, False]
+
+train:
+  num_workers: 8
+  batch: 8
+  mini_batch: 8
+  datasets:
+  - confs/ff/dataoptions/evimo2_imo_train_20ms.yml
+
+val:
+  num_workers: 4
+  batch: 8
+  mini_batch: 2
+  datasets:
+  - confs/ff/dataoptions/evimo2_imo_val_20ms.yml
+
+randomize_ctx: True
+min_numevents_ctx: 10000
+max_numevents_ctx: 800000
+time_ctx: 20000
+time_pred: 20000
+bucket: 1000
+frame_sizes: [640, 480]
+
+# Feature Field model
+eventff:
+  config: confs/ff/modeloptions/640x480x20_patchff_ds1_small.yml

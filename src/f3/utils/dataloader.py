@@ -56,7 +56,7 @@ class BaseExtractor(Dataset):
         self.hdf5_fp = hdf5_file
         self.hdf5_file = h5py.File(hdf5_file, "r")
 
-        ALLOWED_DATASETS = ["m3ed", "dsec", "mvsec", "tartanair-v2"]
+        ALLOWED_DATASETS = ["m3ed", "dsec", "mvsec", "tartanair-v2", "evimo2"]
         assert dtype in ALLOWED_DATASETS, \
             f"Invalid dataset type {dtype}! Allowed types are {ALLOWED_DATASETS}"
 
@@ -76,6 +76,8 @@ class BaseExtractor(Dataset):
                 self.timestamps = self.hdf5_file[f"prophesee/{camera}/ms_map_idx"]
             elif dtype == "dsec":
                 self.timestamps = self.hdf5_file["ms_to_idx"]
+            elif dtype == "evimo2":
+                self.timestamps = self.hdf5_file["ms_to_idx"]
             elif dtype == "mvsec":
                 raise ValueError("⚠️ MVSEC h5 files do not have millisecond to event index mapping. So generate the timestamps_50khz_file and use it!")
             self.logger.info(f"Timestamps loaded from hdf5 file for {dtype} dataset successfully -- 'ms_to_idx' is used!")
@@ -89,10 +91,10 @@ class BaseExtractor(Dataset):
             self.events_p = self.hdf5_file[f"prophesee/{camera}/p"]
         elif dtype == "dsec":
             self.w, self.h = 640, 480   #! Important: resolution in the dataset
-            self.events_x = self.hdf5_file[f"events/x"]
-            self.events_y = self.hdf5_file[f"events/y"]
-            self.events_t = self.hdf5_file[f"events/t"]
-            self.events_p = self.hdf5_file[f"events/p"]
+            self.events_x = self.hdf5_file["events/x"]
+            self.events_y = self.hdf5_file["events/y"]
+            self.events_t = self.hdf5_file["events/t"]
+            self.events_p = self.hdf5_file["events/p"]
         elif dtype == "mvsec":
             self.w, self.h = 346, 260   #! Important: resolution in the dataset
             self.events_x = self.hdf5_file[f"davis/{camera}/events/x"]
@@ -104,6 +106,12 @@ class BaseExtractor(Dataset):
             self.events_x = self.hdf5_file["events/x"]
             self.events_y = self.hdf5_file["events/y"]
             self.events_t = H5WithLazyDivision(self.hdf5_file["events/t"], 1000) # convert ns to us
+            self.events_p = self.hdf5_file["events/p"]
+        elif dtype == "evimo2":
+            self.w, self.h = 640, 480   #! Important: resolution in the dataset (Prophesee/Samsung DVS)
+            self.events_x = self.hdf5_file["events/x"]
+            self.events_y = self.hdf5_file["events/y"]
+            self.events_t = self.hdf5_file["events/t"]  # already in microseconds from conversion
             self.events_p = self.hdf5_file["events/p"]
 
         self.dtype = dtype

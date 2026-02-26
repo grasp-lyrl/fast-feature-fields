@@ -1,0 +1,159 @@
+# EVIMO2v2 ALL eval/validation sequences — left_camera + samsung_mono + right_camera
+# Tasks: imo (standard lighting) + imo_ll (low-light)
+# Event camera resolution: 640x480 (flea3_7 excluded — RGB frame camera at 2080x1552)
+datasets:
+# --- left_camera/imo/eval (8 sequences) ---
+- dataset_path: data/evimo2/left_camera/imo/eval/scene13_dyn_test_00_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene13_dyn_test_05_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene14_dyn_test_03_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene14_dyn_test_04_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene14_dyn_test_05_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene15_dyn_test_01_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene15_dyn_test_02_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo/eval/scene15_dyn_test_05_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+# --- samsung_mono/imo/eval (8 sequences) ---
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene13_dyn_test_00_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene13_dyn_test_05_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene14_dyn_test_03_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene14_dyn_test_04_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene14_dyn_test_05_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene15_dyn_test_01_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene15_dyn_test_02_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo/eval/scene15_dyn_test_05_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+# --- left_camera/imo_ll/eval (2 sequences) ---
+- dataset_path: data/evimo2/left_camera/imo_ll/eval/scene16_d_dyn_test_01_000001/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/left_camera/imo_ll/eval/scene16_d_dyn_test_04_000000/events.h5
+  camera: left
+  dtype: evimo2
+  range: [0, 1, 1]
+
+# --- samsung_mono/imo_ll/eval (2 sequences) ---
+- dataset_path: data/evimo2/samsung_mono/imo_ll/eval/scene16_d_dyn_test_01_000001/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/samsung_mono/imo_ll/eval/scene16_d_dyn_test_04_000000/events.h5
+  camera: samsung
+  dtype: evimo2
+  range: [0, 1, 1]
+
+# --- right_camera/imo/eval (8 sequences) ---
+- dataset_path: data/evimo2/right_camera/imo/eval/scene13_dyn_test_00_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene13_dyn_test_05_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene14_dyn_test_03_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene14_dyn_test_04_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene14_dyn_test_05_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene15_dyn_test_01_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene15_dyn_test_02_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo/eval/scene15_dyn_test_05_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+# --- right_camera/imo_ll/eval (2 sequences) ---
+- dataset_path: data/evimo2/right_camera/imo_ll/eval/scene16_d_dyn_test_01_000001/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
+
+- dataset_path: data/evimo2/right_camera/imo_ll/eval/scene16_d_dyn_test_04_000000/events.h5
+  camera: right
+  dtype: evimo2
+  range: [0, 1, 1]
