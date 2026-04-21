@@ -21,6 +21,9 @@ parser.add_argument("--compile", action="store_true", help="Torch compile both t
 parser.add_argument("--amp", action="store_true", help="Use AMP for training.")
 parser.add_argument("--baseline", action="store_true", help="Use the baseline model.")
 parser.add_argument("--save_preds", action="store_true", help="Save predictions during evaluation.")
+parser.add_argument("--subsample", type=int, default=1, help="Subsampling factor for events (e.g., 2 means use 1/2 of events, randomly selected).")
+parser.add_argument("--MVSEC_DT1", action="store_true", help="Scale to 45 Hz for MVSEC")
+parser.add_argument("--MVSEC_DT4", action="store_true", help="Scale to 11.25 Hz for MVSEC")
 
 args = parser.parse_args()
 keys = set(vars(args).keys())
@@ -33,6 +36,16 @@ for key, value in conf.items():
         setattr(args, key, value)
 
 
+def build_valid_flow_mask(gt_flow, event_mask, data_name):
+    # Keep only finite GT vectors with non-zero magnitude and event support.
+    gt_finite = torch.isfinite(gt_flow).all(dim=-1)
+    gt_nonzero = torch.norm(gt_flow, dim=-1) > 0
+    valid_mask = gt_finite & gt_nonzero & event_mask
+    if data_name == "mvsec":
+        valid_mask[:, 193:] = 0
+    return valid_mask
+
+
 @torch.no_grad()
 def test_fixed_time_optical_flow(args, model, val_loader, test_path, logger=None, save_preds=False):
     #! Technically just supports batch size 1 if multiple resolutions are used
@@ -40,20 +53,39 @@ def test_fixed_time_optical_flow(args, model, val_loader, test_path, logger=None
     results = {'1pe': torch.tensor([0.0]).cuda(), '2pe': torch.tensor([0.0]).cuda(), '3pe': torch.tensor([0.0]).cuda(),
                'aepe': torch.tensor([0.0]).cuda(), 'aae': torch.tensor([0.0]).cuda()}
     nsamples = torch.tensor([0.0]).cuda()
-    
-    evl_ = hasattr(args, "eval_set") and args.eval_set is not None
-    if evl_:
-        with open(args.eval_set, "r") as f:
-            eval_indices = [int(line.strip()) for line in f.readlines()]
-        eval_indices_set = set(eval_indices)
 
     for idx, data in tqdm(enumerate(val_loader), total=len(val_loader)):
-        if evl_ and idx not in eval_indices_set: continue
-
         # [(N,3) or (N,4)], [(B,W,H,2) or (B,W,H,T,2)], [(B,H,W,1)] #! T: max prediction time bins time_pred//bucket
         events_flow, counts_flow, gt_flow, src_ofst_res = data
 
         events_flow, counts_flow, gt_flow = events_flow.cuda(), counts_flow.cuda(), gt_flow.cuda()
+
+        if args.data == "mvsec":
+            if args.MVSEC_DT1:
+                gt_flow = gt_flow * 0.44444444444444444444444444
+                logger.info("Rescaling to 45 Hz GT for MVSEC.")
+            elif args.MVSEC_DT4:
+                gt_flow = gt_flow * 1.777777777777777777777777778
+                logger.info("Rescaling to 11.25 Hz GT for MVSEC.")
+            else:
+                logger.info("Using original 20 Hz GT for MVSEC.")
+
+        if args.subsample > 1:
+            keep_prob = 1.0 / args.subsample
+            keep_mask = torch.rand(events_flow.shape[0], device=events_flow.device) < keep_prob
+
+            # Avoid an empty event tensor for rare cases with aggressive subsampling.
+            if not torch.any(keep_mask):
+                keep_mask[torch.randint(events_flow.shape[0], (1,), device=events_flow.device)] = True
+
+            events_flow = events_flow[keep_mask]
+
+            split_masks = torch.split(keep_mask, counts_flow.tolist())
+            counts_flow = torch.tensor(
+                [int(mask.sum().item()) for mask in split_masks],
+                dtype=counts_flow.dtype,
+                device=counts_flow.device,
+            )
 
         crop_params = torch.cat([
             src_ofst_res[:, :2],
@@ -69,14 +101,14 @@ def test_fixed_time_optical_flow(args, model, val_loader, test_path, logger=None
             flow_pred = torch.concat([flow_pred, torch.zeros(flow_pred.shape[0], nrows, flow_pred.shape[2], 2).cuda()], dim=1)
 
         event_frames_flow = ev_to_frames(events_flow, counts_flow, *args.frame_sizes).permute(0, 2, 1).cpu().numpy() # (B, H, W)
-        event_mask = (event_frames_flow == 255).astype(np.uint8)
-        valid_mask = (torch.norm(gt_flow, dim=-1) > 0) & torch.from_numpy(event_mask).cuda().bool()
-        if args.data == "mvsec":
-            valid_mask[:, 193:] = 0 # remove the bottom bonnet of the car
+        event_mask = torch.from_numpy((event_frames_flow == 255)).to(flow_pred.device).bool()
+        valid_mask = build_valid_flow_mask(gt_flow, event_mask, args.data)
 
         if valid_mask.sum() < 100:
             continue
 
+        unmasked_flow_pred = flow_pred.clone()
+        flow_pred = torch.where(valid_mask.unsqueeze(-1), flow_pred, torch.zeros_like(flow_pred))
         cur_results = eval_flow(flow_pred, gt_flow, valid_mask)
         for k, v in cur_results.items():
             results[k] += v
@@ -89,19 +121,26 @@ def test_fixed_time_optical_flow(args, model, val_loader, test_path, logger=None
 
             ffflow = ffflow.permute(0, 2, 3, 1) # (B, C, H, W) -> (B, H, W, C)
             for i in range(ffflow.shape[0]):
-                flow_pred_rgb = flow_viz_np(flow_pred[i].cpu().numpy())
+                flow_pred_rgb = flow_viz_np(unmasked_flow_pred[i].cpu().numpy())
                 flow_gt_rgb = flow_viz_np(gt_flow[i].cpu().numpy(), norm=True)
 
+                overlay_mask = valid_mask[i].detach().cpu().numpy().astype(np.uint8)
+
                 overlay_image = flow_pred_rgb.copy()
-                overlay_image *= event_mask[i][..., None]
+                overlay_image *= overlay_mask[..., None]
                 overlay_gt = flow_gt_rgb.copy()
-                overlay_gt *= event_mask[i][..., None]
+                overlay_gt *= overlay_mask[..., None]
 
                 ffflowpca, _ = plot_patched_features(ffflow[i], plot=False)
                 ffflowpca = ffflowpca[..., ::-1]
 
                 err_img = epe[i].clone().cpu().numpy()
-                err_img = (err_img - err_img.min()) / (err_img.max() - err_img.min())
+                err_img = np.nan_to_num(err_img, nan=0.0, posinf=0.0, neginf=0.0)
+                denom = err_img.max() - err_img.min()
+                if denom > 0:
+                    err_img = (err_img - err_img.min()) / denom
+                else:
+                    err_img = np.zeros_like(err_img)
                 err_img = (err_img * 255).astype(np.uint8)
                 err_img = cv2.applyColorMap(err_img, cv2.COLORMAP_JET)
                 cv2.putText(err_img, f"Mean: {epe[valid_mask].mean():.2f}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
@@ -123,7 +162,7 @@ def test_fixed_time_optical_flow(args, model, val_loader, test_path, logger=None
         results[k] /= nsamples
 
     logger.info("#"*50)
-    logger.info(f"Test: ")
+    logger.info("Test: ")
     log_dict(logger, results)
     logger.info("#"*50)
 
@@ -169,8 +208,8 @@ def main():
 
     last_dict = torch.load(f"{model_path}/{args.model}.pth", weights_only=False)
     model.load_state_dict(last_dict["model"], strict=True)
-    last_epoch = last_dict["epoch"]
-    last_loss = last_dict["loss"]
+    last_epoch = last_dict.get("epoch", "N/A")
+    last_loss = last_dict.get("loss", "N/A")
     del last_dict
     torch.cuda.empty_cache()
     logger.info(f"Loaded model from: {args.model}, Epoch: {last_epoch}, Loss: {last_loss}")

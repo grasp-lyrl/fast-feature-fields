@@ -162,11 +162,12 @@ def main():
     logger.info("#"*50)
 
     last_dict = torch.load(f"{model_path}/{args.model}.pth", weights_only=False)
-    model.load_state_dict(last_dict["model"], strict=False)
-    last_epoch = last_dict["epoch"]
-    last_loss = last_dict["loss"]
-    last_acc = last_dict["acc"]
-    last_miou = last_dict["miou"]
+    model_state = last_dict.get("model", last_dict)
+    model.load_state_dict(model_state, strict=False)
+    last_epoch = last_dict.get("epoch", "n/a")
+    last_loss = last_dict.get("loss", "n/a")
+    last_acc = last_dict.get("acc", "n/a")
+    last_miou = last_dict.get("miou", "n/a")
     del last_dict
     torch.cuda.empty_cache()
     logger.info(f"Loaded model from: {args.model}, Epoch: {last_epoch}, Loss: {last_loss}, Acc: {last_acc}, MIoU: {last_miou}")
