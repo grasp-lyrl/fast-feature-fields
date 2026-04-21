@@ -22,7 +22,7 @@ flowhead:
 
 # which event ff model and weights to load as the backbone
 eventff:
-  config: outputs/patchff_fulloutdoormvsec_small_50ms/models/config.yml # Config file of the event ff model
+  config: confs/ff/modeloptions/346x260x50_patchff_ds1_small.yml # Config file of the event ff model
 
 # eventmodel: "frames"
 

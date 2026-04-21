@@ -4,5 +4,4 @@ datasets:
   flow_path: data/outdoor_day1_data/outdoor_day1_gt.hdf5
   camera: left
   dtype: mvsec
-  range: [0, 1, 1] # whole sequence
-  # range: [0.8662344517683365, 1, 0.9363433552387953] # the split given in EvFlowNet
+  range: [0.8662344517683365, 1, 0.9363433552387953] # the 800 frame split given in EvFlowNet

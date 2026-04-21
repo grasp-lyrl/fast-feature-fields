@@ -21,9 +21,9 @@ num_labels: 11 # Number of labels
 segformer_config: nvidia/segformer-b3-finetuned-cityscapes-1024-1024
 
 # which event ff model and weights to load as the backbone
-# eventff:
-#   config: outputs/patchff_fullcardaym3ed_small_20ms/models/config.yml
+eventff:
+  config: confs/ff/modeloptions/1280x720x20_patchff_ds1_small.yml # Inherits the model and event data vars from here
 
-eventmodel: "frames"
+# eventmodel: "frames"
 
 # eventmodel: "voxelgrid"
