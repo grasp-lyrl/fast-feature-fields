@@ -233,14 +233,16 @@ Each task directory (`src/f3/tasks/{task}/`) contains its own README with detail
 If you find this code useful in your research, please consider citing:
 
 ```bibtex
-@misc{das2025fastfeaturefield,
-  title={Fast Feature Field ($\text{F}^3$): A Predictive Representation of Events}, 
-  author={Richeek Das and Kostas Daniilidis and Pratik Chaudhari},
-  year={2025},
-  eprint={2509.25146},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2509.25146},
+@article{das2025fastfeaturefield,
+  author  = {Das, Richeek and Daniilidis, Kostas and Chaudhari, Pratik},
+  title   = {{Fast Feature Field (F$^3$)}: A general predictive representation of events for robot perception},
+  journal = {Science Robotics},
+  volume  = {11},
+  number  = {119},
+  pages   = {eaec8218},
+  year    = {2026},
+  doi     = {10.1126/scirobotics.aec8218},
+  url     = {https://www.science.org/doi/abs/10.1126/scirobotics.aec8218},
 }
 ```
 
